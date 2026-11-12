@@ -2,6 +2,7 @@
 // 1. giant name on the home page: letters rise in, then the name shrinks into the header as you scroll
 // 2. anything with class="reveal" fades up when it scrolls into view
 // 3. project list: filter buttons + an image that follows your cursor
+// 4. embeds: tableau (or any iframe link) via <div class="embed" data-src="...">
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -93,6 +94,21 @@ if (follower && items.length) {
     li.addEventListener("mouseleave", () => follower.classList.remove("show"));
   });
 }
+
+/* ---------- 4. embeds: <div class="embed" data-src="..."> ---------- */
+document.querySelectorAll(".embed").forEach(box => {
+  let src = (box.dataset.src || "").trim();
+  if (!src) { box.textContent = "paste a tableau public link into data-src"; return; }
+  // turn a normal tableau public link into its embeddable version
+  if (src.includes("public.tableau.com")) {
+    const m = src.match(/viz\/([^/?#]+)\/([^/?#]+)/) || src.match(/views\/([^/?#]+)\/([^/?#]+)/);
+    if (m) src = `https://public.tableau.com/views/${m[1]}/${m[2]}?:showVizHome=no&:embed=true&:toolbar=no`;
+  }
+  const f = document.createElement("iframe");
+  f.src = src; f.loading = "lazy"; f.allowFullscreen = true;
+  f.style.height = (box.dataset.height || 600) + "px";
+  box.innerHTML = ""; box.appendChild(f);
+});
 
 /* ---------- footer year ---------- */
 document.querySelectorAll(".year-now").forEach(el => el.textContent = new Date().getFullYear());
