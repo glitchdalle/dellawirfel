@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CUNY dissertation topics — della wirfel</title>
   <meta name="description" content="della wirfel — data visualization &amp; product designer, new york.">
-  <link rel="stylesheet" href="../style.css?v=3">
+  <link rel="stylesheet" href="../style.css?v=4">
 </head>
 <body class="">
 
@@ -45,7 +45,7 @@
       <div class="bubbles-sticky">
         <div class="grid12 bubbles-head">
           <div class="c1-3"><span class="bub-year">2000</span><span class="label bub-range">2000 &rarr; 2023</span></div>
-          <p class="c4-12 label">each circle's area is that topic's average weight across all abstracts in the year shown (annual, not the rolling average). once the circles land, scroll to move from 2000 to 2023. the pp figure is the change in average topic weight between 2000&ndash;2009 and 2017&ndash;2024.</p>
+          <p class="c4-12 bub-lede">six of the 25 topics found in 45 years of CUNY dissertations. the bigger the circle, the more that year's dissertations wrote about it. top row: topics that grew. bottom row: topics that shrank. scroll to go from 2000 to 2023.</p>
         </div>
         <div class="bub-rows"></div>
         <!-- the hand that tosses the circles in: hand_1 = closed, hand_2 = open (files in /images) -->
@@ -55,6 +55,23 @@
         </div>
       </div>
     </div>
+
+    <!-- the in-depth explanation of the circles. every number here was checked against the tableau data -->
+    <section class="grid12 bub-notes">
+      <p class="c1-3 label">reading the circles</p>
+      <div class="c4-9">
+        <p class="reveal"><b>what you're seeing.</b> each circle is one topic the model found. its area is that topic's average weight for the year shown: across every abstract from that year, the share of the text the model assigned to that topic, on average. sizes use the annual values from the tableau workbook, not the three-year rolling average in the dashboard, so they jump around from year to year. the timeline runs from 2000 to 2023, the last year with annual data.</p>
+        <p class="reveal"><b>the pp number.</b> under each circle is the change in percentage points between the 2000&ndash;2009 average and the 2017&ndash;2024 average, the comparison used to pick these six. it compares two decades rather than two single years, so it won't equal the difference between the first and last circle.</p>
+        <p class="reveal"><b>what stands out.</b></p>
+        <ul class="bub-points reveal">
+          <li>social, race &amp; community roughly tripled, from 3.68% in 2000 to 11.15% in 2023, its highest year.</li>
+          <li>literary, music &amp; cultural works was the heaviest of the six every year until 2021, when social, race &amp; community overtook it. it did so again in 2023.</li>
+          <li>chemical &amp; material processes roughly halved, from 7.60% to 3.91%, with a low of 2.90% in 2022.</li>
+          <li>education &amp; schools and politics, state &amp; policy both peaked in 2017.</li>
+        </ul>
+        <p class="reveal">the colors match the dashboard below, which follows all six topics across the whole dataset.</p>
+      </div>
+    </section>
 
     <div class="grid12">
       <!-- TABLEAU: paste your Tableau Public link into data-src -->
@@ -86,6 +103,6 @@
     </div>
   </footer>
 
-  <script src="../main.js?v=3"></script>
+  <script src="../main.js?v=4"></script>
 </body>
 </html>
