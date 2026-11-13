@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>reframing the same body — della wirfel</title>
   <meta name="description" content="della wirfel — data visualization &amp; product designer, new york.">
-  <link rel="stylesheet" href="../style.css?v=10">
+  <link rel="stylesheet" href="../style.css?v=11">
 </head>
 <body class="">
 
@@ -31,24 +31,34 @@
 
     <section class="grid12" style="padding-top:0">
       <p class="c1-3 label">summary</p>
-      <p class="c4-12 reveal">one year of wearable data, visualized two opposite ways.</p>
+      <p class="c4-12 reveal">an experiment in how easily data can be misconstrued: one year of wearable data, framed two opposite ways.</p>
     </section>
 
     <section class="grid12">
-      <p class="c1-3 label">question</p>
-      <p class="c4-12 big reveal">how can the same personal health data tell very different stories depending on how it's visualized? using a year of biometric data from my ultrahuman ring (recovery score, sleep score, step count, jan–nov 2025), I explored how ordering, scale and the treatment of missing data can frame a body as improving, declining, disciplined or stagnant.</p>
+      <p class="c1-3 label">the experiment</p>
+      <p class="c4-12 big reveal">how easily can the same data be made to say opposite things? this was a visualization exercise rather than a deep analytics project: I took a year of biometric data from my ultrahuman ring (recovery score, sleep score, step count, jan–nov 2025), left every number alone, and changed only the design choices around them: ordering, scale, color and the treatment of missing data.</p>
     </section>
 
-    <!-- scroll-driven reorder: the same monthly step totals slide from calendar order (frame a) into sorted order (frame b).
+    <!-- design-choice experiment: the same monthly step totals, with four design choices applied one at a time on scroll.
          numbers come straight from the tableau workbooks (SUM of total steps per month); july + august have no data. -->
     <div class="reorder" data-reorder='{"months": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov"], "steps": [206174, 316127, 400423, 248558, 189997, 206419, null, null, 133223, 191348, 49994]}'>
       <div class="reorder-sticky">
         <div class="grid12 reorder-head">
-          <div class="c1-3"><span class="ro-k label">frame</span><span class="ro-word"><span class="ro-a">decline</span><span class="ro-b">progress</span></span></div>
-          <p class="c4-12 ro-lede">the same nine months of my steps, twice. scroll, and nothing changes but the order: calendar order reads as a decline, sorted order reads as progress.</p>
+          <p class="c1-3 label">experiment</p>
+          <p class="c4-12 ro-lede">nine months of my step counts. scroll to apply four design choices, one at a time. the numbers never change, only the way they're shown.</p>
         </div>
-        <div class="ro-chart"></div>
-        <div class="grid12 ro-foot"><p class="c1-12 label">monthly steps, jan&ndash;nov 2025, from my ultrahuman ring. july and august have no data.</p></div>
+        <div class="grid12 ro-body">
+          <div class="c1-9 ro-chart"></div>
+          <ol class="c10-12 ro-levers">
+            <li><span class="lv-n">01</span><span class="lv-name">missing months</span><span class="lv-s"><span class="lv-a">labeled</span> &rarr; <span class="lv-b">dropped</span></span></li>
+            <li><span class="lv-n">02</span><span class="lv-name">order</span><span class="lv-s"><span class="lv-a">calendar</span> &rarr; <span class="lv-b">ascending</span></span></li>
+            <li><span class="lv-n">03</span><span class="lv-name">color</span><span class="lv-s"><span class="lv-a">warning</span> &rarr; <span class="lv-b">reward</span></span></li>
+            <li><span class="lv-n">04</span><span class="lv-name">emphasis</span><span class="lv-s"><span class="lv-a">the low</span> &rarr; <span class="lv-b">the peak</span></span></li>
+            <li class="ro-reads"><span class="lv-n">reads as</span><span class="ro-word"><span class="ro-a">decline</span><span class="ro-b">progress</span></span></li>
+            <li class="ro-zero"><span class="lv-n">values changed</span><span class="ro-zero-n">0</span></li>
+          </ol>
+        </div>
+        <div class="grid12 ro-foot"><p class="c1-12 label">monthly step totals, jan&ndash;nov 2025, from my ultrahuman ring (july and august have no data). same numbers as the tableau dashboards below.</p></div>
       </div>
     </div>
 
@@ -86,6 +96,6 @@
     </div>
   </footer>
 
-  <script src="../main.js?v=10"></script>
+  <script src="../main.js?v=11"></script>
 </body>
 </html>

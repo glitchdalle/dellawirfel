@@ -370,23 +370,45 @@ footer .left { grid-column: 1 / 10; color: var(--muted); }
   transform-origin: 95% 15%; will-change: transform; }
 .hand .hand-open { opacity: 0; }
 
-/* reorder (reframing the same body): bars slide from calendar order to sorted order */
-.reorder { position: relative; height: 300vh; margin: 64px 0 25vh; }
+/* design-choice experiment (reframing the same body): slim bars + a list of the four choices being applied */
+.reorder { position: relative; height: 340vh; margin: 64px 0 25vh; }
 .reorder-sticky { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding-top: 72px; overflow: hidden; }
 .reorder-head { align-items: end; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin: 0 var(--pad); padding-left: 0; padding-right: 0; }
-.ro-k { display: block; font-size: 13px; margin-bottom: 2px; }
-.ro-word { position: relative; display: block; height: 1.05em; overflow: hidden; font-size: clamp(40px, 5vw, 72px); font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
-.ro-a, .ro-b { position: absolute; left: 0; top: 0; white-space: nowrap; }
-.ro-b { transform: translateY(110%); }
 .ro-lede { font-size: 17px; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; max-width: 720px; }
-.ro-chart { position: relative; flex: 1; margin: 32px var(--pad) 0; min-height: 0; }
-.ro-bar { position: absolute; left: 0; top: 0; bottom: 22px; }
+.ro-body { flex: 1; min-height: 0; padding-top: 32px; }
+.ro-chart { position: relative; min-height: 0; height: 100%; }
+.ro-bar { position: absolute; left: 0; top: 0; bottom: 22px; transition: opacity .3s; }
 .ro-fill { position: absolute; left: 0; right: 0; bottom: 0; }
 .ro-bar.missing .ro-fill { border: 1px dashed var(--muted); }
-.ro-val { position: absolute; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ro-val { position: absolute; left: -20px; right: -20px; text-align: center; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; transition: opacity .3s; }
+.ro-bar.dim .ro-val { opacity: .35; }
 .ro-bar.hl .ro-val { color: var(--text); font-weight: 700; }
-.ro-m { position: absolute; left: 0; right: 0; bottom: -20px; text-align: center; font-size: 12px; }
+.ro-m { position: absolute; left: -10px; right: -10px; bottom: -20px; text-align: center; font-size: 12px; color: var(--muted); }
+.ro-levers { list-style: none; align-self: start; }
+.ro-levers li { position: relative; display: grid; grid-template-columns: 28px 1fr; column-gap: 8px; padding: 10px 0 12px; border-top: 1px solid #ddd; }
+.ro-levers li::before { content: ""; position: absolute; top: -1px; left: 0; height: 1px; width: calc(var(--p, 0) * 100%); background: var(--text); }
+.lv-n { font-size: 12px; color: var(--muted); padding-top: 2px; }
+.lv-name { font-size: 15px; }
+.lv-s { grid-column: 2; font-size: 13px; color: var(--muted); }
+.lv-a, .lv-b { transition: color .3s; }
+.ro-levers li:not(.on) .lv-a, .ro-levers li.on .lv-b { color: var(--text); font-weight: 700; }
+.ro-reads { margin-top: 18px; border-top-color: var(--text) !important; }
+.ro-reads .lv-n, .ro-zero .lv-n { grid-column: 1 / 3; }
+.ro-word { grid-column: 1 / 3; position: relative; display: block; height: 1.1em; overflow: hidden; font-size: clamp(28px, 3vw, 44px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; }
+.ro-a, .ro-b { position: absolute; left: 0; top: 0; white-space: nowrap; }
+.ro-b { transform: translateY(110%); }
+.ro-zero-n { grid-column: 1 / 3; font-size: clamp(28px, 3vw, 44px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .ro-foot { padding-top: 34px; padding-bottom: 56px; }   /* clears the locator in the bottom-left */
+@media (max-width: 760px) {
+  .ro-body { display: flex; flex-direction: column-reverse; gap: 12px; }
+  .ro-chart { flex: 1; }
+  .ro-levers { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+  .ro-levers li { padding: 6px 0 8px; grid-template-columns: 20px 1fr; }
+  .lv-name { font-size: 13px; } .lv-s { font-size: 11px; }
+  .ro-reads { margin-top: 0; }
+  .ro-word, .ro-zero-n { font-size: 22px; }
+  .ro-lede { font-size: 13px; }
+}
 
 /* a row of images with a caption (e.g. social stories, email newsletters) */
 .img-grid-wrap { margin: 48px 0; }
