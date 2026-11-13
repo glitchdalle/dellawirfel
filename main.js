@@ -1,53 +1,46 @@
 // della wirfel — site motion. no libraries.
-// 1. giant name on the home page: letters rise in, then the name shrinks into the header as you scroll
+// 1. home page: the name is already there, scrolling types out the intro (ends in the data / design links)
 // 2. anything with class="reveal" fades up when it scrolls into view
 // 3. project list: filter buttons + an image that follows your cursor
 // 4+. embeds, title letters, page wipe, locator, parallax, filmstrip, scroll-scrubbed frames
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ---------- 1. hero name ---------- */
-const heroName = document.querySelector(".hero-name");
-if (heroName) {
-  // split the text into letters so each one can animate
-  const text = heroName.textContent.trim();
-  heroName.innerHTML = "";
-  [...text].forEach((ch, i) => {
-    const mask = document.createElement("span");
-    mask.className = "mask";
-    const c = document.createElement("span");
-    c.className = "char";
-    c.textContent = ch === " " ? String.fromCharCode(160) : ch;   // keep the space between first and last name
-    c.style.animationDelay = (i * 0.045) + "s";
-    mask.appendChild(c);
-    heroName.appendChild(mask);
-  });
-
-  const logo = document.querySelector(".logo");
-  const pad = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pad"));
-  const ease = t => 1 - Math.pow(1 - t, 3);
-
-  function place() {
-    const vh = window.innerHeight;
-    const h = heroName.offsetHeight;
-    const bigSize = parseFloat(getComputedStyle(heroName).fontSize);
-    const smallSize = parseFloat(getComputedStyle(logo).fontSize) * 1.25;
-    const endScale = smallSize / bigSize;
-
-    const startY = vh - h - pad();          // sits at the bottom of the screen
-    const r = logo.getBoundingClientRect();
-    const endY = r.top + (r.height - h * endScale) / 2;   // lines up with the header logo
-    const p = reduceMotion ? 1 : ease(Math.min(window.scrollY / (vh * 0.75), 1));
-
-    const y = startY + (endY - startY) * p;
-    const s = 1 + (endScale - 1) * p;
-    heroName.style.transform = `translate3d(0, ${y}px, 0) scale(${s})`;
-    // tighten the letter-spacing a touch as it shrinks
-    heroName.style.letterSpacing = (-0.055 + 0.04 * p) + "em";
+/* ---------- 1. typed intro (home): the name is already there, scrolling types the rest ----------
+   the practice / based in / currently line hides while it types and comes back at the top and at the end. */
+const typeHero = document.querySelector(".type-hero");
+if (typeHero) {
+  const segs = [...typeHero.querySelectorAll(".type-msg .seg")];
+  const full = segs.map(el => el.textContent);
+  const total = full.reduce((n, t) => n + t.length, 0);
+  const caret = document.createElement("span"); caret.className = "caret";
+  const START = 0.04, END = 0.8;                       // share of the section's scroll where typing happens
+  let shown = -1;
+  function typeTo(n) {
+    if (n === shown) return; shown = n;
+    let left = n, caretAfter = null;
+    segs.forEach((el, k) => {
+      const take = Math.max(0, Math.min(full[k].length, left));
+      el.textContent = full[k].slice(0, take);
+      el.classList.toggle("ready", take === full[k].length);   // links only work once fully typed
+      if (take > 0) caretAfter = el;
+      left -= take;
+    });
+    if (caretAfter) caretAfter.after(caret); else segs[0].before(caret);
+    caret.classList.toggle("done", n >= total);
   }
-  place();
-  window.addEventListener("scroll", () => requestAnimationFrame(place), { passive: true });
-  window.addEventListener("resize", place);
+  function onScroll() {
+    const r = typeHero.getBoundingClientRect();
+    const p = Math.min(Math.max(-r.top / (r.height - innerHeight), 0), 1);
+    const t = reduceMotion ? 1 : Math.min(Math.max((p - START) / (END - START), 0), 1);
+    typeTo(Math.round(t * total));
+    typeHero.classList.toggle("typing", t > 0 && t < 1);      // hides practice / based in / currently
+    typeHero.classList.toggle("started", t > 0);
+    document.body.classList.toggle("past-hero", r.bottom < 90);  // small name returns to the header after the intro
+  }
+  addEventListener("scroll", () => requestAnimationFrame(onScroll), { passive: true });
+  addEventListener("resize", onScroll);
+  onScroll();
 }
 
 /* ---------- 2. scroll reveal ---------- */
@@ -95,20 +88,32 @@ if (follower && items.length) {
   });
 }
 
-/* ---------- embeds: <div class="embed" data-src="..."> ---------- */
+/* ---------- embeds: <div class="embed" data-src="..." data-w="1200" data-h="850"> ----------
+   the frame is exactly the dashboard's size (data-w x data-h, from tableau), so there's no grey gap.
+   on narrower screens the whole dashboard is scaled down to fit, keeping its shape. */
+const embedFits = [];
 document.querySelectorAll(".embed").forEach(box => {
   let src = (box.dataset.src || "").trim();
   if (!src) { box.textContent = "paste a tableau public link into data-src"; return; }
   // turn a normal tableau public link into its embeddable version
   if (src.includes("public.tableau.com")) {
     const m = src.match(/viz\/([^/?#]+)\/([^/?#]+)/) || src.match(/views\/([^/?#]+)\/([^/?#]+)/);
-    if (m) src = `https://public.tableau.com/views/${m[1]}/${m[2]}?:showVizHome=no&:embed=true&:toolbar=no`;
+    if (m) src = `https://public.tableau.com/views/${m[1]}/${m[2]}?:showVizHome=no&:embed=true&:toolbar=no&:device=desktop`;
   }
+  const w = +box.dataset.w || 1200, h = +box.dataset.h || 800;
   const f = document.createElement("iframe");
   f.src = src; f.loading = "lazy"; f.allowFullscreen = true;
-  f.style.height = (box.dataset.height || 600) + "px";
+  f.width = w; f.height = h; f.style.width = w + "px"; f.style.height = h + "px";
   box.innerHTML = ""; box.appendChild(f);
+  function fit() {
+    const avail = box.parentElement.clientWidth - (parseFloat(getComputedStyle(box.parentElement).paddingLeft) || 0) - (parseFloat(getComputedStyle(box.parentElement).paddingRight) || 0);
+    const s = Math.min(1, avail / w);
+    f.style.transform = s < 1 ? `scale(${s})` : "";
+    box.style.width = w * s + "px"; box.style.height = h * s + "px";
+  }
+  embedFits.push(fit); fit();
 });
+addEventListener("resize", () => embedFits.forEach(fn => fn()));
 
 /* ---------- embed toggle: buttons in .embed-switch show one .embed at a time ---------- */
 document.querySelectorAll(".embed-switch").forEach(sw => {
