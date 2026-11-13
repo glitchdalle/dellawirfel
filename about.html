@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>about — della wirfel</title>
   <meta name="description" content="della wirfel — data visualization &amp; product designer, new york.">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
-<body class="">
+<body class="info">
 
   <header class="site-header grid12">
     <a class="logo" href="index.html">della wirfel</a>
@@ -20,17 +20,21 @@
   </header>
 
   <main>
-    <h1 class="page-title reveal">about</h1>
+    <h1 class="page-title page-title-sm reveal">about</h1>
+    <div class="grid12 page-sub">
+      <p class="c4-12">a short bio, then my résumé: <a href="#experience">experience</a>, <a href="#education">education</a> and <a href="#skills">skills</a> &darr;</p>
+    </div>
 
-    <section class="grid12" style="padding-top:0">
+    <section class="grid12" id="bio">
       <p class="c1-3 label">bio</p>
       <div class="c4-12 big reveal">
-        <p>I'm a designer and data analyst in new york. I studied graphic design at FIT, where web design pulled me toward code, and I've worked between the two ever since: a bit of a chameleon, as at home in illustrator as in python.</p>
-        <p style="margin-top:1em">I believe branding and data are sister worlds. both are about making something complex feel clear, accurate and quietly beautiful. I'm drawn to apple-like cleanliness, to healthcare, and especially to wearable tech and the quantified self.</p>
+        <p>I'm a designer and data analyst in NYC. web design pulled me from graphic design toward code, and code showed me how much a good model can reveal. now I pair an eye trained in the visual arts with formal training in data, through the M.S. in data analysis &amp; visualization at the CUNY graduate center.</p>
       </div>
     </section>
 
-    <section>
+    <div class="grid12 resume-head" id="resume"><h2 class="c1-12">résumé</h2></div>
+
+    <section id="experience" style="padding-top:0">
       <div class="grid12" style="margin-bottom:16px"><p class="c1-3 label">experience</p></div>
     <div class="row grid12 reveal">
       <div class="when">may — aug 2026</div>
@@ -54,7 +58,7 @@
     </div>
     </section>
 
-    <section>
+    <section id="education">
       <div class="grid12" style="margin-bottom:16px"><p class="c1-3 label">education</p></div>
     <div class="row grid12 reveal">
       <div class="when">2025 — 2027</div>
@@ -68,7 +72,7 @@
     </div>
     </section>
 
-    <section>
+    <section id="skills">
       <div class="grid12" style="margin-bottom:16px"><p class="c1-3 label">skills</p></div>
     <div class="row grid12 reveal">
       <div class="when">data &amp; analytics</div>
@@ -105,6 +109,6 @@
     </div>
   </footer>
 
-  <script src="main.js"></script>
+  <script src="main.js?v=5"></script>
 </body>
 </html>
