@@ -447,5 +447,90 @@ document.querySelectorAll(".reorder").forEach(box => {
   draw();
 });
 
+/* ---------- 15. layered 311 map (NYC 311 page) ----------
+   circles sit at tableau's own latitude/longitude for each zip; nothing is recalculated.
+   scroll adds one complaint type at a time, each new layer drawn on top of the last. */
+document.querySelectorAll(".map311").forEach(box => {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = box.querySelector("svg"), mapEl = box.querySelector(".map311-map");
+  const BORO = { X: "bronx", K: "brooklyn", M: "manhattan", Q: "queens", S: "staten island" };
+  const LAYERS = [
+    { k: "h", name: "heat / hot water", tab: "Heat / Hot Water", color: "#E8956A" },
+    { k: "u", name: "unsanitary condition", tab: "Unsanitary Condition", color: "#DA5F9C" },
+    { k: "r", name: "rodent", tab: "Rodent", color: "#6E6E6E" },
+    { k: "m", name: "mold", tab: "Mold", color: "#4A78B5" },
+  ];
+  const bar = JSON.parse(box.dataset.bar);
+  const zips = box.dataset.zips.split(";").map(z => {
+    const [head, vals] = z.split(":"); const [zip, lat, lon] = head.split(",");
+    return { zip, lat: +lat, lon: +lon, vals: vals.split(",").map(v => ({ b: v[0], t: v[1], n: +v.slice(2) })) };
+  }).filter(z => z.lat > 40.4 && z.lat < 41 && z.lon > -74.3 && z.lon < -73.6);   // in the city (drops zip 12345)
+  const pts = [];
+  zips.forEach(z => z.vals.forEach(v => pts.push({ zip: z.zip, lat: z.lat, lon: z.lon, b: v.b, t: v.t, n: v.n })));
+  LAYERS.forEach(L => {
+    L.pts = pts.filter(p => p.t === L.k).sort((a, b) => b.n - a.n);                   // big circles underneath small ones
+    L.top = L.pts[0];                                                                 // busiest zip for this complaint type
+    L.boro = bar.filter(r => r[1] === L.tab).map(r => [r[0].toLowerCase(), r[2]]).sort((a, b) => b[1] - a[1]);
+    L.g = document.createElementNS(NS, "g"); svg.appendChild(L.g);
+    L.pts.forEach(p => { const c = document.createElementNS(NS, "circle"); c.setAttribute("fill", L.color); L.g.appendChild(c); p.c = c; });
+  });
+  // side panel
+  const list = box.querySelector(".m3-layers"), detail = box.querySelector(".m3-detail");
+  LAYERS.forEach((L, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="lv-n">0${i + 1}</span><span class="lv-name"><i style="background:${L.color}"></i>${L.name}</span>`;
+    list.appendChild(li); L.li = li;
+  });
+  let shownDetail = -1;
+  function showDetail(i) {
+    if (i === shownDetail) return; shownDetail = i;
+    if (i < 0) { detail.innerHTML = ""; return; }
+    const L = LAYERS[i], max = L.boro[0][1];
+    detail.innerHTML = `<p class="m3-k">${L.name}: complaints by borough</p>` +
+      L.boro.map(([b, n]) => `<div class="m3-row"><span>${b}</span><span class="m3-bar"><i style="width:${n / max * 100}%;background:${L.color}"></i></span><span>${n.toLocaleString("en-US")}</span></div>`).join("") +
+      `<p class="m3-k" style="margin-top:14px">busiest zip</p><p class="m3-top">${L.top.zip} <span>${BORO[L.top.b]} &middot; ${L.top.n.toLocaleString("en-US")}</span></p>`;
+  }
+  // projection: tableau's lat/lon onto the box, keeping the city's proportions
+  let W = 0, H = 0, proj;
+  function layout() {
+    W = mapEl.clientWidth; H = mapEl.clientHeight;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("width", W); svg.setAttribute("height", H);
+    const lats = zips.map(z => z.lat), lons = zips.map(z => z.lon);
+    const la0 = Math.min(...lats), la1 = Math.max(...lats), lo0 = Math.min(...lons), lo1 = Math.max(...lons);
+    const k = Math.cos((la0 + la1) / 2 * Math.PI / 180), pad = 28;
+    const s = Math.min((W - pad * 2) / ((lo1 - lo0) * k), (H - pad * 2) / (la1 - la0));
+    const ox = (W - (lo1 - lo0) * k * s) / 2, oy = (H - (la1 - la0) * s) / 2;
+    proj = (lat, lon) => [ox + (lon - lo0) * k * s, oy + (la1 - lat) * s];
+    const rMax = Math.max(10, Math.min(W, H) * .055);
+    LAYERS.forEach(L => L.pts.forEach(p => {
+      const [x, y] = proj(p.lat, p.lon); p.c.setAttribute("cx", x); p.c.setAttribute("cy", y);
+      p.r = rMax * Math.sqrt(p.n / L.top.n);                                             // circle area follows the count
+      p.d = (x / W) * .5;                                                                 // sweep west -> east as a layer arrives
+    }));
+  }
+  const clamp = v => Math.min(Math.max(v, 0), 1);
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  const STAGES = [[.04, .2], [.24, .42], [.46, .64], [.68, .86]];
+  function draw() {
+    const r = box.getBoundingClientRect();
+    const p = clamp(-r.top / (r.height - innerHeight));
+    const st = STAGES.map(([a, b]) => clamp((p - a) / (b - a)));
+    let active = -1;
+    LAYERS.forEach((L, i) => {
+      if (st[i] > 0) active = i;
+      const later = st.slice(i + 1).reduce((m, v) => Math.max(m, v), 0);                 // dim once the next layer arrives
+      L.g.setAttribute("opacity", (1 - later * .6).toFixed(3));
+      L.pts.forEach(pt => { const t = ease(clamp((st[i] - pt.d) / .5)); pt.c.setAttribute("r", (pt.r * t).toFixed(2)); });
+      L.li.classList.toggle("on", st[i] > 0); L.li.classList.toggle("cur", i === active);
+      L.li.style.setProperty("--p", st[i]);
+    });
+    showDetail(active);
+  }
+  layout();
+  addEventListener("scroll", () => requestAnimationFrame(draw), { passive: true });
+  addEventListener("resize", () => { layout(); draw(); });
+  draw();
+});
+
 /* ---------- footer year ---------- */
 document.querySelectorAll(".year-now").forEach(el => el.textContent = new Date().getFullYear());
