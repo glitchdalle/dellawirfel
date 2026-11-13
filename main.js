@@ -379,21 +379,26 @@ document.querySelectorAll(".embed").forEach(box => {
   box.addEventListener("mouseleave", () => box.classList.remove("live"));
 });
 
-/* ---------- 14. reorder (reframing the same body): same bars, calendar order -> sorted order as you scroll ----------
-   nothing about the values changes; only their order, the color and which month gets the label. */
+/* ---------- 14. design-choice experiment (reframing the same body) ----------
+   the same nine numbers, with four design choices applied one at a time as you scroll:
+   01 missing months labeled -> dropped, 02 calendar order -> ascending, 03 warning color -> reward color,
+   04 emphasis on the low -> the peak. the values themselves never change. */
 document.querySelectorAll(".reorder").forEach(box => {
   const D = JSON.parse(box.dataset.reorder);
   const chart = box.querySelector(".ro-chart");
+  const levers = [...box.querySelectorAll(".ro-levers li:not(.ro-reads):not(.ro-zero)")];
   const wordA = box.querySelector(".ro-a"), wordB = box.querySelector(".ro-b");
   const items = D.months.map((m, i) => ({ m, v: D.steps[i], cal: i }));
   const valid = items.filter(it => it.v != null);
-  [...valid].sort((a, b) => a.v - b.v).forEach((it, k) => it.rank = k);   // position in sorted order
+  valid.forEach((it, k) => it.cal9 = k);                                          // calendar position once gaps are dropped
+  [...valid].sort((a, b) => a.v - b.v).forEach((it, k) => it.rank = k);           // position in ascending order
   const max = Math.max(...valid.map(it => it.v));
   const low = valid.reduce((a, b) => (b.v < a.v ? b : a)), high = valid.reduce((a, b) => (b.v > a.v ? b : a));
-  const A = [224, 146, 139], B = [63, 164, 106];                     // decline: muted red · progress: green
-  const mix = t => `rgb(${A.map((c, i) => Math.round(c + (B[i] - c) * t)).join(",")})`;
+  const WARN = [184, 92, 80], REWARD = [58, 128, 90], NEUTRAL = [150, 150, 150];
+  const rgb = (A, B, t) => `rgb(${A.map((c, i) => Math.round(c + (B[i] - c) * t)).join(",")})`;
   const clamp = v => Math.min(Math.max(v, 0), 1);
   const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const STAGES = [[.06, .26], [.26, .5], [.5, .68], [.68, .86]];                  // scroll ranges for choices 01-04
   items.forEach(it => {
     const el = document.createElement("div"); el.className = "ro-bar" + (it.v == null ? " missing" : "");
     el.innerHTML = `<span class="ro-val"></span><span class="ro-fill"></span><span class="ro-m">${it.m}</span>`;
@@ -402,29 +407,38 @@ document.querySelectorAll(".reorder").forEach(box => {
   function draw() {
     const r = box.getBoundingClientRect();
     const p = clamp(-r.top / (r.height - innerHeight));
-    const t = clamp((p - .15) / .7);                                   // hold, reorder, hold
+    const st = STAGES.map(([a, b]) => ease(clamp((p - a) / (b - a))));           // progress of each choice, 0 -> 1
+    const [sMiss, sOrder, sColor, sEmph] = st;
     const W = chart.clientWidth, H = chart.clientHeight - 26;
-    const gapA = Math.max(4, W / 11 * .14), gapB = Math.max(4, W / 9 * .14);
-    const compact = W / 11 < 72;                                       // short labels on small screens
+    const compact = W / 11 < 64;
+    const slot = n => W / n, gap = n => Math.max(6, W / n * .34);              // slim bars, generous gaps
     items.forEach(it => {
-      const ti = ease(clamp((t - it.cal * .025) / .75));               // a slight stagger, month by month
-      const xa = it.cal * W / 11, wa = W / 11 - gapA;
-      if (it.v == null) {                                               // missing months: labeled, then fade out quietly
-        const h = H * .22;
-        it.el.style.transform = `translateX(${xa}px)`; it.el.style.width = wa + "px";
-        it.fill.style.height = h + "px"; it.val.style.bottom = h + 6 + "px"; it.val.textContent = "no data";
-        it.el.style.opacity = 1 - clamp(t * 2.2);
+      if (it.v == null) {                                                         // 01: labeled gap, then dropped
+        const h = H * .2, x = it.cal * slot(11);
+        it.el.style.transform = `translateX(${x}px)`; it.el.style.width = slot(11) - gap(11) + "px";
+        it.fill.style.height = h + "px"; it.val.style.bottom = h + 6 + "px"; it.val.textContent = compact ? "n/a" : "no data";
+        it.el.style.opacity = 1 - sMiss;
         return;
       }
-      const xb = it.rank * W / 9, wb = W / 9 - gapB;
-      const x = xa + (xb - xa) * ti, w = wa + (wb - wa) * ti, h = Math.max(2, H * .92 * it.v / max);
+      const x11 = it.cal * slot(11), x9 = it.cal9 * slot(9), xs = it.rank * slot(9);
+      const xCal = x11 + (x9 - x11) * sMiss;                                      // gaps close as the missing months drop
+      const x = xCal + (xs - xCal) * sOrder;                                      // 02: calendar -> ascending
+      const w = (slot(11) - gap(11)) + ((slot(9) - gap(9)) - (slot(11) - gap(11))) * sMiss;
+      const h = Math.max(2, H * .9 * it.v / max);
       it.el.style.transform = `translateX(${x}px)`; it.el.style.width = w + "px";
-      it.fill.style.height = h + "px"; it.fill.style.background = mix(ti);
+      it.fill.style.height = h + "px";
+      // 03: color. before: neutral grey with the warning color on the low; after: every bar in the reward color
+      const base = it === low ? rgb(NEUTRAL, WARN, 1) : rgb(NEUTRAL, NEUTRAL, 0);
+      it.fill.style.background = sColor > 0 ? (it === low ? rgb(WARN, REWARD, sColor) : rgb(NEUTRAL, REWARD, sColor)) : base;
+      // 04: emphasis moves from the lowest month to the highest
+      const focus = sEmph < .5 ? low : high;
       it.val.style.bottom = h + 6 + "px";
       it.val.textContent = compact ? Math.round(it.v / 1000) + "k" : it.v.toLocaleString("en-US");
-      it.el.classList.toggle("hl", (t < .5 && it === low) || (t >= .5 && it === high));   // low in decline, peak in progress
+      it.el.classList.toggle("hl", it === focus);
+      it.el.classList.toggle("dim", sEmph > 0 && sEmph < 1 ? false : it !== focus);
     });
-    const tw = ease(t);                                                // the word rolls like a counter: decline up and out, progress up and in
+    levers.forEach((li, k) => { li.style.setProperty("--p", st[k]); li.classList.toggle("on", st[k] > .5); });
+    const tw = ease(clamp((p - .5) / .36));                                       // the reading flips as the choices stack up
     wordA.style.transform = `translateY(${-tw * 110}%)`;
     wordB.style.transform = `translateY(${(1 - tw) * 110}%)`;
   }
