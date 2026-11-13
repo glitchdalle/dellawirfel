@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CUNY dissertation topics — della wirfel</title>
   <meta name="description" content="della wirfel — data visualization &amp; product designer, new york.">
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../style.css?v=3">
 </head>
 <body class="">
 
@@ -45,13 +45,13 @@
       <div class="bubbles-sticky">
         <div class="grid12 bubbles-head">
           <div class="c1-3"><span class="bub-year">2000</span><span class="label bub-range">2000 &rarr; 2023</span></div>
-          <p class="c4-12 label">each circle's area is that topic's average weight across all abstracts in the year shown (annual, not the rolling average). scroll to move from 2000 to 2023. the pp figure is the change in average topic weight between 2000&ndash;2009 and 2017&ndash;2024.</p>
+          <p class="c4-12 label">each circle's area is that topic's average weight across all abstracts in the year shown (annual, not the rolling average). once the circles land, scroll to move from 2000 to 2023. the pp figure is the change in average topic weight between 2000&ndash;2009 and 2017&ndash;2024.</p>
         </div>
         <div class="bub-rows"></div>
         <!-- the hand that tosses the circles in: hand_1 = closed, hand_2 = open (files in /images) -->
-        <div class="hand" aria-hidden="true">
-          <img class="hand-closed" src="../images/hand_1.png" alt="">
-          <img class="hand-open" src="../images/hand_2.png" alt="">
+        <div class="hand" aria-hidden="true" style="position:absolute;right:0;top:22vh;width:min(46vw,640px);pointer-events:none">
+          <img class="hand-closed" src="../images/hand_1.png" alt="" style="position:absolute;top:0;left:0;width:100%;transform:translateX(115%)">
+          <img class="hand-open" src="../images/hand_2.png" alt="" style="position:absolute;top:0;left:0;width:100%;transform:translateX(115%);opacity:0">
         </div>
       </div>
     </div>
@@ -86,6 +86,6 @@
     </div>
   </footer>
 
-  <script src="../main.js"></script>
+  <script src="../main.js?v=3"></script>
 </body>
 </html>
