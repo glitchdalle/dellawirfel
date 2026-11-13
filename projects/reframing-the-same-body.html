@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>reframing the same body — della wirfel</title>
   <meta name="description" content="della wirfel — data visualization &amp; product designer, new york.">
-  <link rel="stylesheet" href="../style.css?v=9">
+  <link rel="stylesheet" href="../style.css?v=10">
 </head>
 <body class="">
 
@@ -38,6 +38,19 @@
       <p class="c1-3 label">question</p>
       <p class="c4-12 big reveal">how can the same personal health data tell very different stories depending on how it's visualized? using a year of biometric data from my ultrahuman ring (recovery score, sleep score, step count, jan–nov 2025), I explored how ordering, scale and the treatment of missing data can frame a body as improving, declining, disciplined or stagnant.</p>
     </section>
+
+    <!-- scroll-driven reorder: the same monthly step totals slide from calendar order (frame a) into sorted order (frame b).
+         numbers come straight from the tableau workbooks (SUM of total steps per month); july + august have no data. -->
+    <div class="reorder" data-reorder='{"months": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov"], "steps": [206174, 316127, 400423, 248558, 189997, 206419, null, null, 133223, 191348, 49994]}'>
+      <div class="reorder-sticky">
+        <div class="grid12 reorder-head">
+          <div class="c1-3"><span class="ro-k label">frame</span><span class="ro-word"><span class="ro-a">decline</span><span class="ro-b">progress</span></span></div>
+          <p class="c4-12 ro-lede">the same nine months of my steps, twice. scroll, and nothing changes but the order: calendar order reads as a decline, sorted order reads as progress.</p>
+        </div>
+        <div class="ro-chart"></div>
+        <div class="grid12 ro-foot"><p class="c1-12 label">monthly steps, jan&ndash;nov 2025, from my ultrahuman ring. july and august have no data.</p></div>
+      </div>
+    </div>
 
     <div class="grid12">
       <!-- TABLEAU: two dashboards, toggled by the buttons. paste links into data-src -->
@@ -73,6 +86,6 @@
     </div>
   </footer>
 
-  <script src="../main.js?v=9"></script>
+  <script src="../main.js?v=10"></script>
 </body>
 </html>
