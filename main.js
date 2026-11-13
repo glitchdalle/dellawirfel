@@ -2,6 +2,7 @@
 // 1. giant name on the home page: letters rise in, then the name shrinks into the header as you scroll
 // 2. anything with class="reveal" fades up when it scrolls into view
 // 3. project list: filter buttons + an image that follows your cursor
+// 4+. embeds, title letters, page wipe, locator, parallax, filmstrip, scroll-scrubbed frames
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -117,6 +118,132 @@ document.querySelectorAll(".embed-switch").forEach(sw => {
     btn.classList.add("active");
     boxes.forEach((b, k) => b.classList.toggle("hidden", k !== +btn.dataset.i));
   }));
+});
+
+/* ---------- 5. split page titles into letters that rise in ---------- */
+document.querySelectorAll(".page-title").forEach(t => {
+  const words = t.textContent.trim().split(" ");
+  t.classList.add("split"); t.classList.remove("reveal"); t.innerHTML = "";
+  let k = 0;
+  words.forEach((w, wi) => {
+    const word = document.createElement("span"); word.style.whiteSpace = "nowrap"; word.style.display = "inline-block";
+    [...w].forEach(ch => {
+      const m = document.createElement("span"); m.className = "mask";
+      const c = document.createElement("span"); c.className = "char"; c.textContent = ch;
+      c.style.transitionDelay = (0.25 + k++ * 0.035) + "s";
+      m.appendChild(c); word.appendChild(m);
+    });
+    t.appendChild(word);
+    if (wi < words.length - 1) t.appendChild(document.createTextNode(" "));
+  });
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add("go")));
+});
+
+/* ---------- 6. project list rows slide in one by one ---------- */
+const listIO = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("in"); listIO.unobserve(e.target); }
+}), { threshold: 0.1 });
+document.querySelectorAll(".plist li").forEach((li, i) => {
+  li.style.transitionDelay = Math.min(i * 0.06, 0.6) + "s";
+  listIO.observe(li);
+});
+
+/* ---------- 7. progress line + "you are here" locator ---------- */
+const bar = document.createElement("div"); bar.className = "progress"; document.body.appendChild(bar);
+const loc = document.createElement("div"); loc.className = "locator";
+const pageName = (document.querySelector(".site-header nav a.active") || {}).textContent || "index";
+const projectName = document.querySelector(".page-title") && location.pathname.includes("/projects/")
+  ? " / " + document.querySelector(".page-title").textContent : "";
+loc.innerHTML = `<span class="loc-page">${pageName}${projectName}</span><span class="loc-sec"></span><span class="loc-pct">00%</span>`;
+document.body.appendChild(loc);
+const secEl = loc.querySelector(".loc-sec"), pctEl = loc.querySelector(".loc-pct");
+
+// every section that starts with a grey label becomes a named stop
+const stops = [...document.querySelectorAll("section, .row")].map(s => {
+  const l = s.querySelector(":scope > .label, :scope .c1-3.label, :scope > div > .label, :scope .when");
+  return l && s.matches("section") ? { el: s, name: l.textContent.trim() } : null;
+}).filter(Boolean);
+let current = "";
+function updateLocator() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  const p = max > 0 ? Math.min(scrollY / max, 1) : 0;
+  bar.style.transform = `scaleX(${p})`;
+  pctEl.textContent = String(Math.round(p * 100)).padStart(2, "0") + "%";
+  let name = "";
+  stops.forEach(s => { if (s.el.getBoundingClientRect().top < innerHeight * 0.45) name = s.name; });
+  if (name !== current) {
+    current = name; secEl.classList.add("swap");
+    setTimeout(() => { secEl.textContent = name ? "— " + name : ""; secEl.classList.remove("swap"); }, 150);
+  }
+}
+addEventListener("scroll", () => requestAnimationFrame(updateLocator), { passive: true });
+updateLocator();
+
+/* ---------- 8. page transitions: panel wipes between pages ---------- */
+if (!reduceMotion) {
+  const wipe = document.createElement("div"); wipe.className = "wipe";
+  wipe.textContent = pageName;
+  document.body.appendChild(wipe);
+  requestAnimationFrame(() => requestAnimationFrame(() => wipe.classList.add("out")));   // reveal this page
+  document.addEventListener("click", e => {
+    const a = e.target.closest("a");
+    if (!a || a.target === "_blank" || e.metaKey || e.ctrlKey) return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || url.pathname === location.pathname || !url.pathname.endsWith(".html") && !url.pathname.endsWith("/")) return;
+    e.preventDefault();
+    const label = (a.querySelector(".name") || a).textContent.replace(/next project →/, "").trim().split("\n")[0];
+    wipe.textContent = label.length < 40 ? label : "";
+    wipe.classList.remove("out"); wipe.classList.add("in-from-below");
+    requestAnimationFrame(() => requestAnimationFrame(() => { wipe.classList.remove("in-from-below"); }));
+    setTimeout(() => { location.href = a.href; }, 650);
+  });
+  addEventListener("pageshow", e => { if (e.persisted) wipe.classList.add("out"); });   // back button
+}
+
+/* ---------- 9. gentle parallax on images and video ---------- */
+const para = [...document.querySelectorAll(".img-box img, .media img, .media video")];
+function parallax() {
+  para.forEach(el => {
+    const r = el.parentElement.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return;
+    const t = (r.top + r.height / 2 - innerHeight / 2) / innerHeight;   // -1 … 1
+    el.style.translate = `0 ${(-t * 30).toFixed(1)}px`;
+  });
+}
+if (!reduceMotion) { addEventListener("scroll", () => requestAnimationFrame(parallax), { passive: true }); parallax(); }
+
+/* ---------- 10. screen filmstrip: drag to scroll + counter ---------- */
+document.querySelectorAll(".strip").forEach(strip => {
+  const count = strip.parentElement.querySelector(".strip-count");
+  const figs = strip.querySelectorAll("figure");
+  let down = false, sx = 0, sl = 0;
+  strip.addEventListener("pointerdown", e => { down = true; sx = e.clientX; sl = strip.scrollLeft; strip.classList.add("dragging"); });
+  addEventListener("pointerup", () => { down = false; strip.classList.remove("dragging"); });
+  strip.addEventListener("pointermove", e => { if (down) strip.scrollLeft = sl - (e.clientX - sx); });
+  strip.addEventListener("scroll", () => {
+    const w = figs[0].getBoundingClientRect().width + 24;
+    const i = Math.min(figs.length, Math.round(strip.scrollLeft / w) + 1);
+    if (count) count.textContent = String(i).padStart(2, "0") + " / " + String(figs.length).padStart(2, "0");
+  }, { passive: true });
+});
+
+/* ---------- 11. scroll-scrubbed frames: .scrub swaps its images as you scroll through it ---------- */
+document.querySelectorAll(".scrub").forEach(sc => {
+  const frames = [...sc.querySelectorAll(".scrub-frames img")];
+  const count = sc.querySelector(".scrub-count");
+  let shown = 0;
+  function scrub() {
+    const r = sc.getBoundingClientRect();
+    const span = r.height - innerHeight;
+    const p = Math.min(Math.max(-r.top / span, 0), 1);
+    const i = Math.min(frames.length - 1, Math.floor(p * frames.length));
+    if (i !== shown) {
+      frames[shown].classList.remove("on"); frames[i].classList.add("on"); shown = i;
+      if (count) count.textContent = String(i + 1).padStart(2, "0") + " / " + String(frames.length).padStart(2, "0");
+    }
+  }
+  addEventListener("scroll", () => requestAnimationFrame(scrub), { passive: true });
+  scrub();
 });
 
 /* ---------- footer year ---------- */
