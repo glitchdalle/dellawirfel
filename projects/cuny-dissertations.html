@@ -39,6 +39,18 @@
       <p class="c4-12 big reveal">I trained an LDA topic model on 16,738 CUNY graduate center dissertation abstracts spanning 45 years, then tracked how the popularity of topics shifted over time. the approach was exploratory rather than keyword-driven: the model surfaced recurring patterns on its own, and from 25 topics I chose six to look into.</p>
     </section>
 
+    <!-- scroll-driven topic circles. data comes straight from the tableau workbook:
+         w = annual avg topic weight (%) for each year from start to end, pp = change 2000-2009 vs 2017-2024 -->
+    <div class="bubbles" data-bubbles='{"start":2000,"end":2023,"topics":[{"t":21,"name":"social, race &amp; community","pp":4.77,"color":"#EB364A","w":[3.6789,4.706,4.3648,4.7495,6.1066,5.6877,5.7917,5.6688,5.0209,5.2502,4.3717,5.5336,6.6473,7.9391,8.9476,6.1578,7.8426,7.9727,8.673,10.8397,8.4157,10.5027,9.7085,11.1487]},{"t":7,"name":"education &amp; schools","pp":2.18,"color":"#4E79A7","w":[1.9313,2.6397,2.1423,2.367,2.1561,3.2629,5.0437,4.3633,4.4504,5.6356,4.7707,5.5213,4.7381,5.185,4.4009,5.3373,6.2368,6.4156,5.598,4.5391,6.3148,5.0674,5.8976,5.2266]},{"t":16,"name":"politics, state &amp; policy","pp":2.15,"color":"#AD6DF9","w":[3.539,3.2404,4.4317,3.8495,3.8982,4.4804,3.1949,4.1501,4.613,4.8638,4.0402,4.224,4.3979,4.1362,5.7177,4.6775,6.212,7.4976,6.9681,7.0931,5.8413,5.0976,5.7978,6.9811]},{"t":10,"name":"chemical &amp; material processes","pp":-3.49,"color":"#F28E2B","w":[7.6004,8.129,5.4458,7.8781,5.4502,7.8133,8.501,7.4831,6.2784,6.3991,5.7328,6.6429,6.5812,4.9889,4.4774,4.4102,3.4501,3.4085,3.9912,3.9332,3.6312,3.5988,2.8996,3.9065]},{"t":2,"name":"literary, music &amp; cultural works","pp":-1.32,"color":"#499894","w":[11.5719,9.9679,11.3279,13.398,13.2611,11.9292,10.5583,8.1581,10.872,9.7858,10.5029,8.9195,9.6237,9.0577,9.3056,8.7292,10.8007,10.1852,9.7071,11.0303,10.3791,9.3131,10.0282,9.0288]},{"t":22,"name":"cell &amp; molecular biology","pp":-1.32,"color":"#82C81D","w":[6.3641,5.3959,5.8191,4.7536,7.3199,6.3171,4.9668,5.0478,4.6076,4.3453,4.746,6.8967,4.8083,4.6158,4.542,3.2808,3.4459,4.131,3.5046,3.7681,4.0071,4.2921,4.2454,4.6173]}]}'>
+      <div class="bubbles-sticky">
+        <div class="grid12 bubbles-head">
+          <div class="c1-3"><span class="bub-year">2000</span><span class="label bub-range">2000 &rarr; 2023</span></div>
+          <p class="c4-12 label">each circle's area is that topic's average weight across all abstracts in the year shown (annual, not the rolling average). scroll to move from 2000 to 2023. the pp figure is the change in average topic weight between 2000&ndash;2009 and 2017&ndash;2024.</p>
+        </div>
+        <div class="bub-rows"></div>
+      </div>
+    </div>
+
     <div class="grid12">
       <!-- TABLEAU: paste your Tableau Public link into data-src -->
       <div class="c1-12 embed reveal" data-src="https://public.tableau.com/app/profile/della.wirfel/viz/topic_trends_Wirfel/Dashboard" data-height="760"></div>

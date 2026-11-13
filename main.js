@@ -17,7 +17,7 @@ if (heroName) {
     mask.className = "mask";
     const c = document.createElement("span");
     c.className = "char";
-    c.textContent = ch === " " ? " " : ch;
+    c.textContent = ch === " " ? " " : ch;
     c.style.animationDelay = (i * 0.045) + "s";
     mask.appendChild(c);
     heroName.appendChild(mask);
@@ -244,6 +244,49 @@ document.querySelectorAll(".scrub").forEach(sc => {
   }
   addEventListener("scroll", () => requestAnimationFrame(scrub), { passive: true });
   scrub();
+});
+
+/* ---------- 12. topic circles: area = annual topic weight, scrubbed year by year as you scroll ---------- */
+document.querySelectorAll(".bubbles").forEach(box => {
+  const data = JSON.parse(box.dataset.bubbles);
+  const years = data.end - data.start;                       // 23 steps: 2000 -> 2023
+  const yearEl = box.querySelector(".bub-year");
+  const rows = box.querySelector(".bub-rows");
+  const maxW = Math.max(...data.topics.flatMap(t => t.w));   // largest weight across all topics & years
+  const groups = [["largest increases", data.topics.filter(t => t.pp > 0)], ["largest decreases", data.topics.filter(t => t.pp < 0)]];
+  const balls = [];
+  groups.forEach(([label, list]) => {
+    const l = document.createElement("div"); l.className = "bub-rowlabel"; l.textContent = label; rows.appendChild(l);
+    const row = document.createElement("div"); row.className = "bub-row"; rows.appendChild(row);
+    list.forEach(t => {
+      const cell = document.createElement("div"); cell.className = "bub-cell";
+      const stage = document.createElement("div"); stage.className = "bub-stage";
+      const b = document.createElement("div"); b.className = "bub"; b.style.background = t.color;
+      b.innerHTML = `<span class="bt">T${t.t}</span><span class="bw"></span>`;
+      stage.appendChild(b);
+      const name = document.createElement("div"); name.className = "bub-name"; name.textContent = t.name.replace("&amp;", "&");
+      const pp = document.createElement("div"); pp.className = "bub-pp"; pp.style.color = t.color;
+      pp.textContent = (t.pp > 0 ? "+" : "") + t.pp.toFixed(2) + " pp";
+      cell.append(stage, name, pp); row.appendChild(cell);
+      balls.push({ t, b, stage, w: b.querySelector(".bw") });
+    });
+  });
+  function draw() {
+    const r = box.getBoundingClientRect();
+    const p = Math.min(Math.max(-r.top / (r.height - innerHeight), 0), 1);
+    const i = Math.min(years, Math.floor(p * (years + 1)));  // the year shown (each year gets an equal slice of the scroll)
+    yearEl.textContent = data.start + i;
+    const stageH = balls[0].stage.clientHeight, stageW = balls[0].stage.clientWidth;
+    const rMax = Math.max(20, Math.min(stageH, stageW) / 2 - 4);
+    balls.forEach(o => {
+      const d = 2 * rMax * Math.sqrt(o.t.w[i] / maxW);       // area ∝ that year's real weight (CSS eases between years)
+      o.b.style.width = o.b.style.height = d + "px";
+      o.w.textContent = o.t.w[i].toFixed(2) + "%";           // label always shows the exact value for the displayed year
+    });
+  }
+  addEventListener("scroll", () => requestAnimationFrame(draw), { passive: true });
+  addEventListener("resize", draw);
+  draw();
 });
 
 /* ---------- footer year ---------- */
