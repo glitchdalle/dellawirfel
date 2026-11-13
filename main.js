@@ -17,7 +17,7 @@ if (heroName) {
     mask.className = "mask";
     const c = document.createElement("span");
     c.className = "char";
-    c.textContent = ch === " " ? " " : ch;
+    c.textContent = ch === " " ? " " : ch;
     c.style.animationDelay = (i * 0.045) + "s";
     mask.appendChild(c);
     heroName.appendChild(mask);
