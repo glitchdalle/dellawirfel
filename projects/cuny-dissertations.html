@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cuny dissertation topics — della wirfel</title>
+  <meta name="description" content="della wirfel — data visualization &amp; product designer, new york.">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="">
+
+  <header class="site-header grid12">
+    <a class="logo" href="../index.html">della wirfel</a>
+    <nav>
+      <a href="../index.html">index</a>
+      <a href="../about.html">about</a>
+      <a href="../projects.html" class="active">projects</a>
+      <a href="../contact.html">contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1 class="page-title reveal">cuny dissertation topics</h1>
+
+    <div class="meta grid12 reveal">
+      <div><span>type</span>topic modeling</div>
+      <div><span>year</span>2025</div>
+      <div><span>tools</span>python (lda), tableau</div>
+      <div><span>role</span>analyst &amp; designer</div>
+    </div>
+
+    <section class="grid12" style="padding-top:0">
+      <p class="c1-3 label">summary</p>
+      <p class="c4-12 reveal">topic modeling 16,738 dissertation abstracts across 45 years.</p>
+    </section>
+
+    <section class="grid12">
+      <p class="c1-3 label">overview</p>
+      <p class="c4-12 big reveal">i trained an lda topic model on 16,738 cuny graduate center dissertation abstracts spanning 45 years, then tracked how the popularity of topics shifted over time. the approach was exploratory rather than keyword-driven: the model surfaced recurring patterns on its own, and from 25 topics i chose six to look into.</p>
+    </section>
+
+    <div class="grid12">
+      <!-- TABLEAU: paste your Tableau Public link into data-src -->
+      <div class="c1-12 embed reveal" data-src="" data-height="760"></div>
+      <p class="c1-12 label embed-caption">interactive — hover and click to explore</p>
+    </div>
+    <section class="grid12">
+      <p class="c1-3 label">method</p>
+      <p class="c4-9 reveal">topic selection was data-driven: the three topics with the largest increases in average topic weight and the three with the largest decreases, comparing two well-populated periods (2000–2009 and 2017–2024). each dissertation gets a probability distribution across all 25 topics, so aggregating those weights by year reveals shifts that aren't obvious from any single document.</p>
+    </section>
+    <section class="grid12">
+      <p class="c1-3 label">visualization</p>
+      <p class="c4-9 reveal">a bold three-year rolling average shows each topic's trajectory, while a pale line keeps the annual values. the top words sit under each human-readable label so viewers can see the evidence behind my interpretation. tableau turns raw, fairly inaccessible lda output into something a nontechnical viewer can explore.</p>
+    </section>
+    <section class="grid12">
+      <p class="c1-3 label">limitations</p>
+      <p class="c4-9 reveal">lda detects statistical patterns in words; it doesn't understand meaning. labels are my interpretation, 25 topics was a modeling choice, preprocessing shapes what can emerge, and early years (pre-1980) are too sparse for reliable comparison. topic weight is average probability, not a share of dissertations. the results are a starting point for closer reading, not proof of why things changed.</p>
+    </section>
+
+    <section>
+      <a class="next" href="health-app.html"><span class="label">next project &rarr;</span>health app</a>
+    </section>
+  </main>
+
+  <footer>
+    <div class="grid12">
+      <div class="left">&copy; <span class="year-now"></span> della wirfel — new york</div>
+      <div class="right"><a href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">back to top &uarr;</a></div>
+    </div>
+  </footer>
+
+  <script src="../main.js"></script>
+</body>
+</html>
