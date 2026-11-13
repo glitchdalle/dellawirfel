@@ -379,5 +379,59 @@ document.querySelectorAll(".embed").forEach(box => {
   box.addEventListener("mouseleave", () => box.classList.remove("live"));
 });
 
+/* ---------- 14. reorder (reframing the same body): same bars, calendar order -> sorted order as you scroll ----------
+   nothing about the values changes; only their order, the color and which month gets the label. */
+document.querySelectorAll(".reorder").forEach(box => {
+  const D = JSON.parse(box.dataset.reorder);
+  const chart = box.querySelector(".ro-chart");
+  const wordA = box.querySelector(".ro-a"), wordB = box.querySelector(".ro-b");
+  const items = D.months.map((m, i) => ({ m, v: D.steps[i], cal: i }));
+  const valid = items.filter(it => it.v != null);
+  [...valid].sort((a, b) => a.v - b.v).forEach((it, k) => it.rank = k);   // position in sorted order
+  const max = Math.max(...valid.map(it => it.v));
+  const low = valid.reduce((a, b) => (b.v < a.v ? b : a)), high = valid.reduce((a, b) => (b.v > a.v ? b : a));
+  const A = [224, 146, 139], B = [63, 164, 106];                     // decline: muted red · progress: green
+  const mix = t => `rgb(${A.map((c, i) => Math.round(c + (B[i] - c) * t)).join(",")})`;
+  const clamp = v => Math.min(Math.max(v, 0), 1);
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  items.forEach(it => {
+    const el = document.createElement("div"); el.className = "ro-bar" + (it.v == null ? " missing" : "");
+    el.innerHTML = `<span class="ro-val"></span><span class="ro-fill"></span><span class="ro-m">${it.m}</span>`;
+    chart.appendChild(el); it.el = el; it.fill = el.querySelector(".ro-fill"); it.val = el.querySelector(".ro-val");
+  });
+  function draw() {
+    const r = box.getBoundingClientRect();
+    const p = clamp(-r.top / (r.height - innerHeight));
+    const t = clamp((p - .15) / .7);                                   // hold, reorder, hold
+    const W = chart.clientWidth, H = chart.clientHeight - 26;
+    const gapA = Math.max(4, W / 11 * .14), gapB = Math.max(4, W / 9 * .14);
+    const compact = W / 11 < 72;                                       // short labels on small screens
+    items.forEach(it => {
+      const ti = ease(clamp((t - it.cal * .025) / .75));               // a slight stagger, month by month
+      const xa = it.cal * W / 11, wa = W / 11 - gapA;
+      if (it.v == null) {                                               // missing months: labeled, then fade out quietly
+        const h = H * .22;
+        it.el.style.transform = `translateX(${xa}px)`; it.el.style.width = wa + "px";
+        it.fill.style.height = h + "px"; it.val.style.bottom = h + 6 + "px"; it.val.textContent = "no data";
+        it.el.style.opacity = 1 - clamp(t * 2.2);
+        return;
+      }
+      const xb = it.rank * W / 9, wb = W / 9 - gapB;
+      const x = xa + (xb - xa) * ti, w = wa + (wb - wa) * ti, h = Math.max(2, H * .92 * it.v / max);
+      it.el.style.transform = `translateX(${x}px)`; it.el.style.width = w + "px";
+      it.fill.style.height = h + "px"; it.fill.style.background = mix(ti);
+      it.val.style.bottom = h + 6 + "px";
+      it.val.textContent = compact ? Math.round(it.v / 1000) + "k" : it.v.toLocaleString("en-US");
+      it.el.classList.toggle("hl", (t < .5 && it === low) || (t >= .5 && it === high));   // low in decline, peak in progress
+    });
+    const tw = ease(t);                                                // the word rolls like a counter: decline up and out, progress up and in
+    wordA.style.transform = `translateY(${-tw * 110}%)`;
+    wordB.style.transform = `translateY(${(1 - tw) * 110}%)`;
+  }
+  addEventListener("scroll", () => requestAnimationFrame(draw), { passive: true });
+  addEventListener("resize", draw);
+  draw();
+});
+
 /* ---------- footer year ---------- */
 document.querySelectorAll(".year-now").forEach(el => el.textContent = new Date().getFullYear());
