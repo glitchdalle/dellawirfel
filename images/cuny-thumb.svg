@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<rect width="800" height="600" fill="#ffffff"/>
+<!-- CUNY topic circles: area = each topic's 2023 annual weight (tableau data); colors match the dashboard -->
+<circle cx="235" cy="205" r="118.0" fill="#EB364A"/>
+<text x="235" y="211" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="35" font-weight="700" fill="#fff">T21</text>
+<circle cx="465" cy="150" r="80.8" fill="#4E79A7"/>
+<text x="465" y="156" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#fff">T7</text>
+<circle cx="370" cy="455" r="93.4" fill="#AD6DF9"/>
+<text x="370" y="461" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#fff">T16</text>
+<circle cx="118" cy="440" r="69.8" fill="#F28E2B"/>
+<text x="118" y="446" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#fff">T10</text>
+<circle cx="600" cy="385" r="106.2" fill="#499894"/>
+<text x="600" y="391" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="32" font-weight="700" fill="#fff">T2</text>
+<circle cx="665" cy="145" r="75.9" fill="#82C81D"/>
+<text x="665" y="151" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="23" font-weight="700" fill="#fff">T22</text>
+<text x="28" y="572" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="22" fill="#000">2023</text>
+</svg>
