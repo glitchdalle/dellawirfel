@@ -293,6 +293,25 @@ footer .left { grid-column: 1 / 10; color: var(--muted); }
 .scrub-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-top: 12px; }
 .scrub-count { color: var(--accent); font-variant-numeric: tabular-nums; }
 
+/* scroll-driven topic circles (CUNY dissertation topics) */
+.bubbles { position: relative; height: 380vh; margin: 64px 0; }
+.bubbles-sticky { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding-top: 72px; overflow: hidden; }
+.bubbles-head { align-items: end; padding-bottom: 8px; border-bottom: 1px solid var(--line); margin: 0 var(--pad); padding-left: 0; padding-right: 0; }
+.bub-year { display: block; font-size: 72px; font-weight: 700; letter-spacing: -0.04em; line-height: .9; font-variant-numeric: tabular-nums; }
+.bub-range { display: block; margin-top: 6px; }
+.bubbles-head p { font-size: 13px; max-width: 640px; }
+.bub-rows { flex: 1; display: grid; grid-template-rows: auto 1fr auto 1fr; padding: 8px var(--pad) 40px; min-height: 0; }
+.bub-rowlabel { font-size: 13px; color: var(--muted); padding-top: 8px; }
+.bub-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); min-height: 0; }
+.bub-cell { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-height: 0; }
+.bub-stage { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+.bub { border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; text-align: center; line-height: 1.1; transition: width .45s var(--ease), height .45s var(--ease); }
+.bub .bt { font-size: 11px; font-weight: 700; }
+.bub .bw { font-size: 11px; font-variant-numeric: tabular-nums; }
+.bub-name { font-size: 13px; margin-top: 6px; text-align: center; }
+.bub-pp { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
 /* file links (pdfs) */
 .file-links a { display: flex; justify-content: space-between; border-top: 1px solid var(--line);
   padding: 12px 0 20px; font-size: 28px; letter-spacing: -0.01em; transition: padding .4s var(--ease), color .2s; }
@@ -322,6 +341,9 @@ footer .left { grid-column: 1 / 10; color: var(--muted); }
   .contact-big a { font-size: 9vw; }
   .hero-meta { top: calc(var(--pad) + 70px); }
   .locator .loc-sec { display: none; }
+  .bub-year { font-size: 48px; }
+  .bubbles-head p { display: none; }
+  .bub-name { font-size: 11px; }
 }
 
 /* respect people who turn motion off */
