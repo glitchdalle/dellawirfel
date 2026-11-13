@@ -2,7 +2,6 @@
 // 1. giant name on the home page: letters rise in, then the name shrinks into the header as you scroll
 // 2. anything with class="reveal" fades up when it scrolls into view
 // 3. project list: filter buttons + an image that follows your cursor
-// 4. embeds: tableau (or any iframe link) via <div class="embed" data-src="...">
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -95,7 +94,7 @@ if (follower && items.length) {
   });
 }
 
-/* ---------- 4. embeds: <div class="embed" data-src="..."> ---------- */
+/* ---------- embeds: <div class="embed" data-src="..."> ---------- */
 document.querySelectorAll(".embed").forEach(box => {
   let src = (box.dataset.src || "").trim();
   if (!src) { box.textContent = "paste a tableau public link into data-src"; return; }
@@ -108,6 +107,16 @@ document.querySelectorAll(".embed").forEach(box => {
   f.src = src; f.loading = "lazy"; f.allowFullscreen = true;
   f.style.height = (box.dataset.height || 600) + "px";
   box.innerHTML = ""; box.appendChild(f);
+});
+
+/* ---------- embed toggle: buttons in .embed-switch show one .embed at a time ---------- */
+document.querySelectorAll(".embed-switch").forEach(sw => {
+  const boxes = sw.parentElement.querySelectorAll(".embed-group .embed");
+  sw.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => {
+    sw.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    boxes.forEach((b, k) => b.classList.toggle("hidden", k !== +btn.dataset.i));
+  }));
 });
 
 /* ---------- footer year ---------- */
