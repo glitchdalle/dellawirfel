@@ -42,8 +42,8 @@ document.querySelectorAll(".bub2").forEach(box => {
   let shownBeat = -1, shownLen = -1;
   function narrate(yi, on) {
     let b = 0; BEATS.forEach((x, k) => { if (yi >= x.at) b = k; });
-    const next = BEATS[b + 1] ? BEATS[b + 1].at : N + 1.5, len = BEATS[b].text.length;
-    const n = Math.round(len * clamp((yi - BEATS[b].at) / Math.max(.6, (next - BEATS[b].at) * .6)));
+    const next = BEATS[b + 1] ? BEATS[b + 1].at : N, len = BEATS[b].text.length;   // the last beat finishes by 2023
+    const n = Math.round(len * clamp((yi - BEATS[b].at) / Math.max(.6, (next - BEATS[b].at) * .7)));
     if (b !== shownBeat || n !== shownLen) { shownBeat = b; shownLen = n; sayText.textContent = BEATS[b].text.slice(0, n); }
     caret.classList.toggle("done", n >= len);
     say.style.opacity = on.toFixed(3);
@@ -139,7 +139,7 @@ document.querySelectorAll(".bub2").forEach(box => {
   // ---------- scroll ----------
   const clamp = v => Math.min(Math.max(v, 0), 1);
   const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  const DROP = [.04, .24], WALK = [.3, .82], SETTLE = [.84, .94];
+  const DROP = [.04, .24], WALK = [.3, .8], SETTLE = [.88, .96];        // a pause after 2023 so the last line can be read
   const DOT = 3.5;                                                                  // point radius; lines are 2 x DOT wide (see cuny2.css)
   const span = ([a, b], p) => clamp((p - a) / (b - a));
   let lastLede = -1;
