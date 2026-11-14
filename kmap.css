@@ -1,0 +1,37 @@
+/* k-means world map (global cities page) */
+.kmap { position: relative; height: 460vh; margin: 64px 0 25vh; }
+.kmap-sticky { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding-top: 72px; overflow: hidden; }
+.kmap-head { align-items: end; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin: 0 var(--pad); padding-left: 0; padding-right: 0; }
+.kmap-body { flex: 1; min-height: 0; padding-top: 16px; }
+.kmap-map { position: relative; min-height: 0; height: 100%; }
+.kmap-map svg { display: block; overflow: visible; }
+.kmap-map circle { transition: fill .6s var(--ease), fill-opacity .6s var(--ease), stroke-opacity .6s var(--ease); stroke: #fff; stroke-width: .6; }
+.km-tip { position: absolute; z-index: 3; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px; line-height: 1.35;
+  padding: 6px 9px 7px; white-space: nowrap; opacity: 0; transform: translate(-50%, calc(-100% - 12px)); transition: opacity .2s; }
+.km-tip.show { opacity: 1; }
+.km-tip b { font-weight: 700; }
+.kmap-panel { align-self: start; padding-top: 8px; }
+.km-list { list-style: none; }
+.km-list li { position: relative; display: grid; grid-template-columns: 28px 1fr; column-gap: 8px; padding: 8px 0 9px; border-top: 1px solid #ddd; color: var(--muted); transition: color .3s; }
+.km-list li::before { content: ""; position: absolute; top: -1px; left: 0; height: 1px; width: calc(var(--p, 0) * 100%); background: var(--text); }
+.km-list li.on { color: var(--text); }
+.km-list li.cur .lv-name { font-weight: 700; }
+.km-list .lv-name i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+.km-detail { margin-top: 20px; min-height: 240px; }
+.km-obs { font-size: 15px; line-height: 1.35; margin-bottom: 16px; max-width: 360px; }
+.km-k { font-size: 12px; color: var(--muted); margin: 12px 0 6px; }
+.km-row { display: grid; grid-template-columns: 22px 1fr 92px; gap: 8px; align-items: center; font-size: 12px; padding: 2px 0; color: var(--muted); }
+.km-row.hl { color: var(--text); font-weight: 700; }
+.km-row span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.km-bar { height: 6px; background: #f0f0f0; }
+.km-bar i { display: block; height: 100%; transition: opacity .4s; }
+.km-row:not(.hl) .km-bar i { opacity: .35; }
+@media (max-width: 760px) {
+  .kmap-body { display: flex; flex-direction: column; gap: 8px; }
+  .kmap-map { flex: 1; }
+  .km-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+  .km-list li { padding: 5px 0 6px; grid-template-columns: 20px 1fr; font-size: 12px; }
+  .km-detail { min-height: 0; margin-top: 8px; }
+  .km-obs { font-size: 13px; margin-bottom: 0; }
+  .km-k, .km-row { display: none; }
+}
