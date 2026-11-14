@@ -90,7 +90,7 @@ img { max-width: 100%; display: block; }
 .type-msg { font-size: clamp(20px, 2.4vw, 40px); line-height: 1.22; letter-spacing: -0.015em; max-width: 1180px; }
 .type-msg .pick { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .14em; pointer-events: none; }
 .type-msg .pick.ready { pointer-events: auto; }
-.type-msg .pick-data { color: var(--text); }  /* data: ink; red stays the one highlight color */
+.type-msg .pick-data { color: #ff3b00; }    /* data: red, like design */
 .type-msg .pick-design { color: #ff3b00; }    /* design: the red used on the project pages */
 .type-msg .pick:hover { color: var(--text); }
 .caret { display: inline-block; width: .06em; height: .95em; margin-left: .04em; background: var(--text);
