@@ -223,10 +223,14 @@ const coverURL = slug => COVERS[slug] && COVERS[slug][0] ? new URL(COVERS[slug][
 // about / contact (smaller, light), home (the name)
 function titleKind(url) {
   const p = new URL(url, location.href).pathname;
-  if (/\/(about|contact)\.html$/.test(p)) return "t-info";
+  if (FIRST[slugOf(url)]) return FIRST[slugOf(url)][1];
+  if (/\/about\.html$/.test(p)) return "t-info";
+  if (/\/contact\.html$/.test(p)) return "t-contact";
   if (/\/(index\.html)?$/.test(p)) return "t-home";
   return "t-page";
 }
+// pages that open on a scroll story: their first heading is the story's opening line, not the page title
+const FIRST = { "nyc-311-housing": ["a city of complaints.", "t-sky"] };
 // a link's visible title, without list numbers or "next project" labels
 function titleOf(a) {
   if (a.querySelector(".name")) return a.querySelector(".name").textContent.trim();
@@ -245,7 +249,8 @@ if (!reduceMotion) {
   const wImg = wipe.querySelector(".wipe-img"), wLabel = wipe.querySelector(".wipe-label");
   function dress(label, url) {
     const slug = slugOf(url), cv = COVERS[slug], u = coverURL(slug);
-    wLabel.textContent = cv ? "" : (titleKind(url) === "t-home" ? "della wirfel" : label);   // covers carry no text
+    const first = FIRST[slug];
+    wLabel.textContent = cv ? "" : first ? first[0] : (titleKind(url) === "t-home" ? "della wirfel" : label);   // covers carry no text
     wLabel.className = "wipe-label " + titleKind(url);
     wipe.classList.toggle("has-img", !!u);
     wipe.classList.toggle("light", !!u && cv[1] === "contain");
