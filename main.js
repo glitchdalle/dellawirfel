@@ -532,5 +532,11 @@ document.querySelectorAll(".map311").forEach(box => {
   draw();
 });
 
+/* ---------- projects menu: loads menu.js (the drop-down under "projects" in the header) ---------- */
+if (document.currentScript) {
+  const m = document.createElement("script"); m.src = new URL("menu.js?v=1", document.currentScript.src).href; m.defer = true;
+  document.head.appendChild(m);
+}
+
 /* ---------- footer year ---------- */
 document.querySelectorAll(".year-now").forEach(el => el.textContent = new Date().getFullYear());
