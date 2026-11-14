@@ -11,8 +11,13 @@
 .bub2-stage svg { display: block; overflow: visible; }
 .b2-grid line { stroke: #e6e6e6; stroke-width: 1; }
 .b2-grid text { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
-.b2-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.b2-line { fill: none; stroke-width: 7; stroke-linejoin: round; stroke-linecap: round; }
 .b2-lab { font-size: 13px; opacity: 0; }
+/* typed narration in the empty column right of the lines (on phones: above them) */
+.b2-say { position: absolute; right: 0; top: 24px; margin: 0; font-family: var(--type-font, inherit); font-weight: 300;
+  font-size: clamp(17px, 1.6vw, 24px); line-height: 1.25; letter-spacing: -0.01em; opacity: 0; pointer-events: none; }
+.b2-say .caret { display: inline-block; width: .06em; height: .95em; margin-left: .04em; background: var(--text); vertical-align: -.1em;
+  animation: blink 1s steps(1) infinite; }
 .b2-inner { font-size: 11px; fill: #fff; pointer-events: none; font-variant-numeric: tabular-nums; }
 .b2-t { font-weight: 700; }
 .b2-under { font-size: 13px; fill: var(--text); pointer-events: none; }
@@ -24,4 +29,5 @@
   .bub2-stage { margin-bottom: 56px; }
   .b2-lab { font-size: 11px; }
   .b2-under { font-size: 11px; }
+  .b2-say { left: 0; right: 0; top: 0; font-size: 15px; }
 }

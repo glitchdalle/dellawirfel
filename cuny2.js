@@ -25,6 +25,30 @@ document.querySelectorAll(".bub2").forEach(box => {
   if (srcLede) ledes[0].innerHTML = srcLede.innerHTML;
   const ledeBox = box.querySelector(".bub2-ledes");
 
+  // typed narration beside the lines while they draw, like the home page intro: it types as you scroll.
+  // each beat starts at a year (index into the data) and every number in it is a value from the workbook
+  const fmtW = v => v.toFixed(2) + "%";
+  const byT = n => data.topics.find(t => t.t === n);
+  const BEATS = [
+    { at: 0, text: "each point is one topic. scroll and it walks forward a year at a time, drawing its line." },
+    { at: 3, text: `2003: literary, music & cultural works peaks at ${fmtW(byT(2).w[3])}, the heaviest of the six.` },
+    { at: 17, text: "2017: education & schools and politics, state & policy both reach their highest point." },
+    { at: 21, text: "2021: social, race & community overtakes literary, music & cultural works." },
+    { at: 22, text: `2022–23: chemical & material processes hits its low (${fmtW(byT(10).w[22])}) while social, race & community climbs to ${fmtW(byT(21).w[23])}, about three times its 2000 share.` },
+  ];
+  const say = document.createElement("p"); say.className = "b2-say"; stage.appendChild(say);
+  const sayText = document.createElement("span"), caret = document.createElement("span"); caret.className = "caret";
+  say.append(sayText, caret);
+  let shownBeat = -1, shownLen = -1;
+  function narrate(yi, on) {
+    let b = 0; BEATS.forEach((x, k) => { if (yi >= x.at) b = k; });
+    const next = BEATS[b + 1] ? BEATS[b + 1].at : N + 1.5, len = BEATS[b].text.length;
+    const n = Math.round(len * clamp((yi - BEATS[b].at) / Math.max(.6, (next - BEATS[b].at) * .6)));
+    if (b !== shownBeat || n !== shownLen) { shownBeat = b; shownLen = n; sayText.textContent = BEATS[b].text.slice(0, n); }
+    caret.classList.toggle("done", n >= len);
+    say.style.opacity = on.toFixed(3);
+  }
+
   // ---------- svg pieces ----------
   const grid = document.createElementNS(NS, "g"); grid.setAttribute("class", "b2-grid"); svg.appendChild(grid);
   const T = topics.map(t => {
@@ -89,7 +113,8 @@ document.querySelectorAll(".bub2").forEach(box => {
     W = stage.clientWidth; H = stage.clientHeight;
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("width", W); svg.setAttribute("height", H);
     const narrow = W < 700;
-    padL = narrow ? 30 : 46; padR = narrow ? 64 : Math.min(330, W * .3); padT = 24; padB = 40;
+    padL = narrow ? 30 : 46; padR = narrow ? 64 : Math.min(330, W * .3); padT = narrow ? 64 : 24; padB = 40;
+    say.style.width = narrow ? "" : (padR - 40) + "px";
     X = i => padL + (W - padL - padR) * i / N;
     Y = v => padT + (H - padT - padB) * (1 - v / yMax);
     grid.innerHTML = "";
@@ -115,6 +140,7 @@ document.querySelectorAll(".bub2").forEach(box => {
   const clamp = v => Math.min(Math.max(v, 0), 1);
   const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const DROP = [.04, .24], WALK = [.3, .82], SETTLE = [.84, .94];
+  const DOT = 3.5;                                                                  // point radius; lines are 2 x DOT wide (see cuny2.css)
   const span = ([a, b], p) => clamp((p - a) / (b - a));
   let lastLede = -1;
   function draw() {
@@ -135,7 +161,7 @@ document.querySelectorAll(".bub2").forEach(box => {
         const A = o.pts[Math.min(i0, N)], B = o.pts[Math.min(i0 + 1, N)];
         x = A[0] + (B[0] - A[0]) * fr; y = A[1] + (B[1] - A[1]) * fr;
       }
-      const rad = f.r + (5 - f.r) * d;                                              // big circle -> small point
+      const rad = f.r + (DOT - f.r) * d;                                            // big circle -> the line's own width
       o.dot.setAttribute("cx", x.toFixed(1)); o.dot.setAttribute("cy", y.toFixed(1)); o.dot.setAttribute("r", rad.toFixed(1));
       const drawn = wk > 0 ? o.pts.slice(0, Math.min(i0, N) + 1).concat([[x, y]]) : [];
       o.line.setAttribute("points", drawn.map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" "));
@@ -147,6 +173,7 @@ document.querySelectorAll(".bub2").forEach(box => {
       rowLabs.forEach(({ t }) => t.style.opacity = fade);
     });
     grid.style.opacity = d.toFixed(3);
+    narrate(yi, clamp((p - WALK[0] + .02) / .04) * (1 - s));                         // types while walking, steps aside for the labels
     const lede = p < DROP[1] * .6 ? 0 : p < SETTLE[0] ? 1 : 2;
     if (lede !== lastLede) { lastLede = lede; ledes.forEach((el, k) => el.classList.toggle("on", k === lede)); }
   }
