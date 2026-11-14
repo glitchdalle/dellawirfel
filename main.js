@@ -203,22 +203,18 @@ function updateLocator() {
 addEventListener("scroll", () => requestAnimationFrame(updateLocator), { passive: true });
 updateLocator();
 
-/* ---------- 8. page transitions: a black panel wipes between pages, carrying the next page's name ---------- */
-// a link's visible name, without list numbers or "next project" labels
-function titleOf(a) {
-  if (a.querySelector(".name")) return a.querySelector(".name").textContent.trim();
-  const c = a.cloneNode(true);
-  c.querySelectorAll(".label").forEach(n => n.remove());
-  c.querySelectorAll("span").forEach(n => { if (/^\s*\d+\s*$/.test(n.textContent)) n.remove(); });
-  return c.textContent.replace(/\s+/g, " ").trim();
+/* ---------- 8. page transitions: a black panel wipes between pages, carrying the section's name ----------
+   every project page is "projects"; the other pages are "index", "about", "contact" (the header nav names). */
+function sectionOf(url) {
+  const p = new URL(url, location.href).pathname;
+  if (/\/projects(\/|\.html$)/.test(p)) return "projects";
+  if (/\/about\.html$/.test(p)) return "about";
+  if (/\/contact\.html$/.test(p)) return "contact";
+  return "index";
 }
 if (!reduceMotion) {
   const wipe = document.createElement("div"); wipe.className = "wipe";
-  // as a page opens, the panel keeps the name it carried on the way here (so a click on "timeless" stays "timeless");
-  // opened directly, it shows this page's own title
-  let carried = ""; try { carried = sessionStorage.getItem("wipe:" + location.pathname) || ""; sessionStorage.removeItem("wipe:" + location.pathname); } catch (e) {}
-  const h1 = document.querySelector(".page-title");
-  wipe.textContent = carried || (h1 && h1.textContent.trim().length < 40 ? h1.textContent.trim() : pageName);
+  wipe.textContent = pageName;
   document.body.appendChild(wipe);
   requestAnimationFrame(() => requestAnimationFrame(() => wipe.classList.add("out")));   // reveal this page
   document.addEventListener("click", e => {
@@ -227,9 +223,7 @@ if (!reduceMotion) {
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin || url.pathname === location.pathname || !url.pathname.endsWith(".html") && !url.pathname.endsWith("/")) return;
     e.preventDefault();
-    const label = titleOf(a);
-    wipe.textContent = label.length < 40 ? label : "";
-    try { sessionStorage.setItem("wipe:" + url.pathname, wipe.textContent); } catch (e) {}
+    wipe.textContent = sectionOf(url.href);
     wipe.classList.remove("out"); wipe.classList.add("in-from-below");
     requestAnimationFrame(() => requestAnimationFrame(() => { wipe.classList.remove("in-from-below"); }));
     setTimeout(() => { location.href = a.href; }, 650);
