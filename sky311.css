@@ -1,0 +1,45 @@
+/* "the other skyline" (NYC 311 page): line-art boroughs, a spike per zip code, morphing through four complaint types */
+main.has-intro { padding-top: 0; }
+.sky311 { position: relative; height: 760vh; margin-bottom: 12vh; }
+.sky-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; }
+.sky-copy { position: absolute; z-index: 2; left: var(--pad); width: 34%; top: 50%; transform: translateY(-50%); height: 340px; }
+.sky-act { position: absolute; left: 0; top: 0; right: 0; opacity: 0; transform: translateY(14px); pointer-events: none;
+  transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.sky-act.on { opacity: 1; transform: none; pointer-events: auto; }
+.sky-act h2 { font-size: clamp(30px, 3.6vw, 56px); font-weight: 500; letter-spacing: -0.035em; line-height: 1; margin-bottom: 14px; }
+.sky-act p { font-size: clamp(15px, 1.25vw, 18px); line-height: 1.38; color: var(--muted); }
+.sky-act p b { color: var(--text); font-weight: 500; }
+.sky-map { position: absolute; left: 38%; right: var(--pad); top: 70px; bottom: 40px; }
+.sky-map svg { display: block; overflow: visible; }
+.sky-boros path { fill: none; stroke: #9a978f; stroke-width: .9; stroke-linejoin: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; stroke-dashoffset: 1; }
+.sky-map svg > g + g path { stroke: #fff; stroke-width: .4; fill-opacity: .82; pointer-events: none; }
+.sky311.is-live .sky-map svg > g + g path { pointer-events: auto; }
+.sky311.is-live .sky-map svg > g + g path:hover { fill-opacity: 1; stroke: var(--text); }
+.sky-tip { position: absolute; z-index: 3; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px; line-height: 1.4;
+  padding: 6px 9px 7px; white-space: nowrap; opacity: 0; transform: translate(-50%, calc(-100% - 8px)); transition: opacity .2s; }
+.sky-tip.show { opacity: 1; }
+.sky-tip span { opacity: .6; } .sky-tip span.on { opacity: 1; font-weight: 700; }
+/* scale key: a bar as tall as the tallest possible spike, and what it stands for */
+.sky-key { position: absolute; right: var(--pad); bottom: 40px; display: flex; align-items: flex-end; gap: 10px; font-size: 12px; color: var(--muted);
+  opacity: 0; transition: opacity .5s; text-align: right; }
+.sky-key.show { opacity: 1; }
+.sky-key b { color: var(--text); font-weight: 600; }
+.sky-key i { order: 2; display: block; width: 1px; background: var(--text); transition: height .5s var(--ease); }
+.sky-picks { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.sky-picks button { font: inherit; font-size: 14px; text-transform: inherit; background: none; border: 0; padding: 0; color: var(--muted);
+  cursor: pointer; text-align: left; transition: color .25s; }
+.sky-picks button i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: 0; }
+.sky-picks button.on, .sky-picks button:hover { color: var(--text); }
+.sky-picks button.on { font-weight: 700; }
+.sky-hint { position: absolute; right: var(--pad); bottom: 22px; transition: opacity .4s; }
+.sky311.started .sky-hint { opacity: 0; }
+@media (max-width: 760px) {
+  .sky-copy { width: auto; right: var(--pad); top: 92px; transform: none; height: 190px; }
+  .sky-act h2 { font-size: 28px; }
+  .sky-act p { font-size: 14px; }
+  .sky-picks { flex-direction: row; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; }
+  .sky-picks button { font-size: 12px; }
+  .sky-map { left: var(--pad); top: 290px; bottom: 70px; }
+  .sky-key { bottom: 48px; }
+}

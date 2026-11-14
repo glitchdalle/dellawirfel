@@ -12,7 +12,7 @@ main.has-intro { padding-top: 0; }
 .km-act p b { color: var(--text); font-weight: 500; }
 .kmap-map { position: absolute; left: var(--pad); right: var(--pad); top: 280px; bottom: 64px; }
 .kmap-map svg { display: block; overflow: visible; }
-.km-land { fill: #efeeeb; stroke: none; opacity: 0; }
+.km-land { fill: none; stroke: #b3b0a8; stroke-width: .8; stroke-linejoin: round; vector-effect: non-scaling-stroke; opacity: 0; }   /* line-art world */
 .kmap-map circle { stroke: #fff; stroke-width: .5; pointer-events: none; }
 .kmap.is-live .kmap-map circle { pointer-events: auto; }
 .kmap.is-live .kmap-map circle:hover { stroke: var(--text); stroke-width: 1.4; }
