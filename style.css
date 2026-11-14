@@ -90,7 +90,7 @@ img { max-width: 100%; display: block; }
 .type-msg { font-size: clamp(20px, 2.4vw, 40px); line-height: 1.22; letter-spacing: -0.015em; max-width: 1180px; }
 .type-msg .pick { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .14em; pointer-events: none; }
 .type-msg .pick.ready { pointer-events: auto; }
-.type-msg .pick-data { color: #1F35F5; }      /* data: ultramarine */
+.type-msg .pick-data { color: var(--text); }  /* data: ink; red stays the one highlight color */
 .type-msg .pick-design { color: #ff3b00; }    /* design: the red used on the project pages */
 .type-msg .pick:hover { color: var(--text); }
 .caret { display: inline-block; width: .06em; height: .95em; margin-left: .04em; background: var(--text);
@@ -162,12 +162,15 @@ section { padding-top: 80px; }
 /* image that follows the cursor over the project list */
 .cursor-img {
   position: fixed; top: 0; left: 0; z-index: 40; pointer-events: none;
-  width: 280px; aspect-ratio: 4 / 3; background: #eeeeee center / cover no-repeat;
-  display: flex; align-items: center; justify-content: center; color: var(--muted);
-  opacity: 0; transform: translate(-50%, -50%) scale(.85);
-  transition: opacity .25s var(--ease), transform .4s var(--ease);
+  width: 300px; aspect-ratio: 4 / 3; background: #f4f4f2 center / cover no-repeat;
+  border: 6px solid #fff; border-radius: 10px;                       /* a white passe-partout frame... */
+  outline: 1px solid rgba(0,0,0,.14);                                 /* ...with a hairline edge */
+  box-shadow: 0 18px 50px -12px rgba(0,0,0,.28), 0 2px 6px rgba(0,0,0,.06);
+  display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px;
+  opacity: 0; transform: translate(-50%, -50%) scale(.9) rotate(-2deg);
+  transition: opacity .3s var(--ease), transform .5s var(--ease);
 }
-.cursor-img.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.cursor-img.show { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
 
 /* ---------- project detail ---------- */
 .meta { row-gap: 16px; margin-bottom: 64px; }
@@ -222,29 +225,29 @@ section { padding-top: 80px; }
   border-top: 1px solid var(--line); padding: 12px 0 24px;
 }
 
-/* ---------- color: index, about + contact sit on stone with ultramarine; projects stay white ---------- */
-body.info { --bg: #EAE7E0; --accent: #1F35F5; --muted: #77736B; }
+/* ---------- index, about + contact: white with the red highlight, lighter type ---------- */
+body.info { --bg: #ffffff; --accent: #ff3b00; --muted: #8a8a8a; }   /* white with the red highlight, like the projects */
 .info .row { background: none !important; padding-bottom: 28px; }   /* fewer rules: spacing does the separating */
 .info .row:last-child { border-bottom: 0; }
-.info .contact-big a { font-weight: 500; }
+.info .contact-big a { font-weight: 300; letter-spacing: -0.035em; }   /* same light weight as the name on the home page */
 .info .marquee { border: 0; color: var(--accent); }
-.info .page-title { font-weight: 500; }
+.info .page-title { font-weight: 300; letter-spacing: -0.045em; }
 .page-title-sm { font-size: 7vw; margin-bottom: 20px; }
 .page-sub { margin-bottom: 24px; }
 .page-sub p { font-size: 20px; letter-spacing: -0.01em; }
 .page-sub a { color: var(--accent); }
 .page-sub a:hover { text-decoration: underline; }
 .resume-head { padding-top: 120px; padding-bottom: 24px; }
-.resume-head h2 { font-size: 7vw; font-weight: 500; letter-spacing: -0.05em; line-height: .85; color: var(--accent); }
+.resume-head h2 { font-size: 7vw; font-weight: 300; letter-spacing: -0.05em; line-height: .85; color: var(--accent); }
 .c1-9 { grid-column: 1 / 10; } .c10-12 { grid-column: 10 / 13; }
 .resume-dl { align-self: end; text-align: right; font-size: 20px; }
 .resume-dl a { color: var(--accent); }
 .resume-dl a:hover { text-decoration: underline; }
 [id] { scroll-margin-top: 90px; }
 
-/* contact: the handle fades in, in blue, when you hover a link */
+/* contact: the handle fades in, in red, when you hover a link */
 .contact-big a { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-.contact-big .handle { font-size: 18px; font-weight: 400; letter-spacing: 0; color: #1F35F5;
+.contact-big .handle { font-size: 18px; font-weight: 400; letter-spacing: 0; color: var(--accent);
   opacity: 0; transform: translateX(-8px); transition: opacity .35s var(--ease), transform .35s var(--ease); }
 .contact-big a:hover .handle { opacity: .55; transform: none; }
 @media (hover: none) { .contact-big .handle { opacity: .55; transform: none; } }
