@@ -47,10 +47,29 @@ if (typeHero) {
 const io = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
 }, { threshold: 0.15 });
+// image blocks: big files can take a few seconds. the box keeps its exact size and shows a soft grey pulse
+// until the picture has actually arrived, then the picture fades in (if the file fails, the pulse just stops).
+document.querySelectorAll(".media img, .img-box img").forEach(img => {
+  if (img.complete && img.naturalWidth) return;
+  const box = img.closest(".media, .img-box"); box.classList.add("wait");
+  const done = () => box.classList.remove("wait");
+  img.addEventListener("load", done, { once: true }); img.addEventListener("error", done, { once: true });
+});
 document.querySelectorAll(".reveal").forEach((el, i) => {
   el.style.transitionDelay = (el.dataset.delay || 0) + "s";
   io.observe(el);
 });
+// safety net: a fast flick or a jump (back button, anchor) can carry a block past the screen without the
+// observer ever catching it. anything whose top is already above the bottom of the screen gets revealed.
+let revealQueued = false;
+function revealPassed() {
+  revealQueued = false;
+  document.querySelectorAll(".reveal:not(.in)").forEach(el => {
+    if (el.getBoundingClientRect().top < innerHeight * 0.9) { el.classList.add("in"); io.unobserve(el); }
+  });
+}
+addEventListener("scroll", () => { if (!revealQueued) { revealQueued = true; requestAnimationFrame(revealPassed); } }, { passive: true });
+addEventListener("load", revealPassed);
 
 /* ---------- 3. project list ---------- */
 const buttons = document.querySelectorAll(".filters button");
@@ -536,6 +555,12 @@ document.querySelectorAll(".map311").forEach(box => {
 if (document.currentScript) {
   const m = document.createElement("script"); m.src = new URL("menu.js?v=1", document.currentScript.src).href; m.defer = true;
   document.head.appendChild(m);
+}
+
+/* ---------- global cities page: the five-cluster key under the map (kmkey.js) ---------- */
+if (document.currentScript && document.querySelector(".kmap")) {
+  const k = document.createElement("script"); k.src = new URL("kmkey.js?v=1", document.currentScript.src).href; k.defer = true;
+  document.head.appendChild(k);
 }
 
 /* ---------- footer year ---------- */
