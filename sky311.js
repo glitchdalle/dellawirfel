@@ -1,6 +1,8 @@
 // della wirfel — "the other skyline" (NYC 311 page only). loaded after main.js.
 //
-// a line drawing of the five boroughs, then a spike rises from each zip code, sized by its complaints.
+// a line drawing of the five boroughs, then a solid line rises from each zip code, its height set by the complaints
+// (the same round-capped strokes as the dissertation timeline, in the 311 colors).
+// on a phone the map pinches to zoom (two fingers; one finger still scrolls the page), with + / - / reset buttons.
 // scrolling morphs the skyline through the four complaint types: heat, unsanitary, rodent, mold.
 // mold is shown first on rodent's scale (it barely registers), then rescaled to its own tallest spike,
 // so the scale change is part of the story. at the end the skyline can be explored.
@@ -14,6 +16,8 @@ document.querySelectorAll(".sky311").forEach(box => {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const svg = box.querySelector("svg"), mapEl = box.querySelector(".sky-map"), tip = box.querySelector(".sky-tip");
   const acts = [...box.querySelectorAll(".sky-act")], key = box.querySelector(".sky-key"), picks = box.querySelector(".sky-picks");
+  acts.forEach(el => { el.innerHTML = el.innerHTML.replace(/spike/g, "line"); });   // the page's captions say "spike"; they're lines now
+  const zoomUI = document.createElement("div"); zoomUI.className = "sky-zoom"; mapEl.appendChild(zoomUI);
   const BORO = { X: "bronx", K: "brooklyn", M: "manhattan", Q: "queens", S: "staten island" };
   const T = [   // the four complaint types, in story order
     { k: "h", name: "heat / hot water", color: [232, 149, 106] },
@@ -38,30 +42,42 @@ document.querySelectorAll(".sky311").forEach(box => {
   const boroPaths = Object.values(SKY_BORO).map(d => {
     const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); p.setAttribute("pathLength", "1"); boroG.appendChild(p); return p;
   });
-  const spikeG = document.createElementNS(NS, "g"); svg.appendChild(spikeG);
+  const spikeG = document.createElementNS(NS, "g"); spikeG.setAttribute("class", "sky-spikes"); svg.appendChild(spikeG);
+  let tipFor = null;
+  function showTip(s) {
+    tipFor = s;
+    tip.innerHTML = `<b>${s.zip}</b> &middot; ${BORO[s.b]}<br>` + T.map(t => `<span${t === T[pick] ? ' class="on"' : ""}>${t.name}: ${(s.n[t.k] || 0).toLocaleString("en-US")}</span>`).join("<br>");
+    tip.style.left = s.x + "px"; tip.style.top = s.y - s.h - lw / 2 + "px"; tip.classList.add("show");
+  }
+  const hideTip = () => { tipFor = null; tip.classList.remove("show"); };
   spikes.forEach(s => {
     s.el = document.createElementNS(NS, "path"); spikeG.appendChild(s.el);
-    s.el.addEventListener("mouseenter", () => {
-      if (!live) return;
-      tip.innerHTML = `<b>${s.zip}</b> &middot; ${BORO[s.b]}<br>` + T.map(t => `<span${t === T[pick] ? ' class="on"' : ""}>${t.name}: ${(s.n[t.k] || 0).toLocaleString("en-US")}</span>`).join("<br>");
-      tip.style.left = s.x + "px"; tip.style.top = s.y - s.h + "px"; tip.classList.add("show");
-    });
-    s.el.addEventListener("mouseleave", () => tip.classList.remove("show"));
+    s.el.addEventListener("mouseenter", () => { if (live) showTip(s); });
+    s.el.addEventListener("mouseleave", hideTip);
+    s.el.addEventListener("click", e => { if (live) { e.stopPropagation(); tipFor === s ? hideTip() : showTip(s); } });   // tap on a phone
   });
+  mapEl.addEventListener("click", hideTip);
 
   // ---------- layout: the same projection for the borough lines and every spike ----------
   // borough paths are stored as x = (lon + 74.26) * 1000 * cos(40.7°), y = (40.92 - lat) * 1000
   const K = Math.cos(40.7 * Math.PI / 180);
-  let W, H, sc, ox, oy, hMax, half;
+  let W, H, sc, ox, oy, hMax, lw;
+  let z = 1, tx = 0, ty = 0;                                                      // zoom: screen = base * z + t
   function layout() {
     W = mapEl.clientWidth; H = mapEl.clientHeight;
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("width", W); svg.setAttribute("height", H);
-    const bw = 540, bh = 410, top = H * .32;                                      // leave headroom for the spikes
+    const bw = 540, bh = 410, top = H * .32;                                      // leave headroom for the lines
     sc = Math.min((W - 20) / bw, (H - top - 16) / bh);
     ox = (W - bw * sc) / 2; oy = top + (H - top - 16 - bh * sc) / 2;
-    boroG.setAttribute("transform", `translate(${ox} ${oy}) scale(${sc})`);
-    hMax = Math.min(H * .33, top + bh * sc * .5); half = Math.max(1.6, sc * 2.6);
-    spikes.forEach(s => { s.x = ox + (s.lon + 74.26) * 1000 * K * sc; s.y = oy + (40.92 - s.lat) * 1000 * sc; });
+    hMax = Math.min(H * .33, top + bh * sc * .5);
+    lw = Math.min(6, Math.max(2.4, sc * 4.2));                                    // line thickness = its end-dot, like the timeline
+    spikes.forEach(s => { s.bx = ox + (s.lon + 74.26) * 1000 * K * sc; s.by = oy + (40.92 - s.lat) * 1000 * sc; });
+    place();
+  }
+  function place() {                                                              // apply the zoom to the city and every line's base
+    boroG.setAttribute("transform", `translate(${ox * z + tx} ${oy * z + ty}) scale(${sc * z})`);
+    spikes.forEach(s => { s.x = s.bx * z + tx; s.y = s.by * z + ty; });
+    zoomUI.classList.toggle("zoomed", z > 1.01);
   }
 
   // ---------- story ----------
@@ -102,14 +118,16 @@ document.querySelectorAll(".sky311").forEach(box => {
         col = mix(T[from.t].color, T[to.t].color, i === 1 ? 1 : f);
       }
       s.h = Math.max(0, h * hMax);
-      s.el.setAttribute("d", `M${(s.x - half).toFixed(1)} ${s.y.toFixed(1)}L${s.x.toFixed(1)} ${(s.y - s.h).toFixed(1)}L${(s.x + half).toFixed(1)} ${s.y.toFixed(1)}Z`);
-      s.el.style.fill = `rgb(${col})`;
+      s.el.setAttribute("d", `M${s.x.toFixed(1)} ${s.y.toFixed(1)}V${(s.y - s.h).toFixed(1)}`);
+      s.el.style.stroke = `rgb(${col})`; s.el.style.strokeWidth = lw;
+      s.el.style.opacity = i === 0 || (L && !s.n[T[L.t].k]) ? 0 : 1;              // no line before the city is drawn, or where a zip has none
     });
+    if (tipFor) showTip(tipFor);
     // scale key: what the tallest spike stands for right now
     const cur = L || (i === 0 ? null : (f > .5 ? to : from));
     if (cur && cur.g) {
       const t = T[cur.scale];
-      key.innerHTML = `<i style="height:${hMax}px"></i><span>tallest possible spike = <b>${fmt(t.max)}</b> complaints<br>(${t.top.zip}, ${BORO[t.top.b]}, ${t.name})</span>`;
+      key.innerHTML = `<i style="height:${hMax}px"></i><span>tallest possible line = <b>${fmt(t.max)}</b> complaints<br>(${t.top.zip}, ${BORO[t.top.b]}, ${t.name})</span>`;
       key.classList.add("show");
     } else key.classList.remove("show");
   }
@@ -117,7 +135,7 @@ document.querySelectorAll(".sky311").forEach(box => {
     const r = box.getBoundingClientRect();
     p = clamp(-r.top / (r.height - innerHeight));
     const was = live; live = p >= LIVE;
-    if (was && !live) { tip.classList.remove("show"); pick = 3; paintPicks(); }
+    if (was && !live) { hideTip(); pick = 3; paintPicks(); if (z > 1) { z = 1; tx = ty = 0; place(); } }
     box.classList.toggle("is-live", live); box.classList.toggle("started", p > .02);
     const act = ACT_AT.reduce((a, at, k) => p >= at ? k : a, 0);
     if (act !== lastAct) { lastAct = act; acts.forEach((el, k) => el.classList.toggle("on", k === act)); }
@@ -127,6 +145,47 @@ document.querySelectorAll(".sky311").forEach(box => {
   picks.innerHTML = T.map((t, k) => `<button type="button" data-k="${k}"><i style="background:rgb(${t.color})"></i>${t.name}</button>`).join("");
   function paintPicks() { picks.querySelectorAll("button").forEach(b => b.classList.toggle("on", +b.dataset.k === pick)); }
   picks.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { pick = +b.dataset.k; paintPicks(); draw(); }));
+  // ---------- zoom: pinch with two fingers (one finger keeps scrolling the page), or + / - / reset ----------
+  function zoomAt(k, mx, my) {
+    const nz = Math.min(8, Math.max(1, z * k)); k = nz / z; z = nz;
+    tx = mx - (mx - tx) * k; ty = my - (my - ty) * k;
+    if (z <= 1.001) { z = 1; tx = ty = 0; }
+    // keep the city on screen: its middle can't leave the box
+    const cx = (ox + 270 * sc) * z, cy = (oy + 205 * sc) * z;
+    if (z > 1) { tx = Math.min(Math.max(tx, -cx), W - cx); ty = Math.min(Math.max(ty, -cy), H - cy); }
+    place(); draw();
+  }
+  zoomUI.innerHTML = `<button type="button" data-z="in" aria-label="zoom in">+</button><button type="button" data-z="out" aria-label="zoom out">&minus;</button><button type="button" data-z="reset" class="zr">reset</button><span class="zh">pinch to zoom</span>`;
+  zoomUI.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.z === "reset") { z = 1; tx = ty = 0; place(); draw(); }
+    else zoomAt(b.dataset.z === "in" ? 1.6 : 1 / 1.6, W / 2, H * .6);
+  });
+  let pinch = null;
+  const mid = (a, b) => { const r = mapEl.getBoundingClientRect(); return [(a.clientX + b.clientX) / 2 - r.left, (a.clientY + b.clientY) / 2 - r.top]; };
+  const dist = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  mapEl.addEventListener("touchstart", e => {
+    if (e.touches.length === 2) { const [a, b] = e.touches; pinch = { d: dist(a, b), m: mid(a, b) }; hideTip(); }
+  }, { passive: true });
+  mapEl.addEventListener("touchmove", e => {
+    if (e.touches.length !== 2 || !pinch) return;
+    e.preventDefault();                                                             // two fingers: the map, not the page
+    const [a, b] = e.touches, d = dist(a, b), m = mid(a, b);
+    tx += m[0] - pinch.m[0]; ty += m[1] - pinch.m[1];                               // two fingers also pan
+    zoomAt(d / pinch.d, m[0], m[1]);
+    pinch = { d, m };
+  }, { passive: false });
+  mapEl.addEventListener("touchend", e => { if (e.touches.length < 2) pinch = null; });
+  // trackpad pinch / ctrl + wheel on a computer
+  mapEl.addEventListener("wheel", e => {
+    if (!e.ctrlKey) return;
+    e.preventDefault(); const r = mapEl.getBoundingClientRect();
+    zoomAt(Math.exp(-e.deltaY / 120), e.clientX - r.left, e.clientY - r.top);
+  }, { passive: false });
+  // the explore caption mentions tapping and zooming
+  const lastP = acts[acts.length - 1].querySelector("p");
+  if (lastP) lastP.textContent = "hover or tap a line for its zip code's numbers, switch between complaint types, and pinch or use + / − to zoom.";
+
   pick = 3; paintPicks();
   layout();
   addEventListener("scroll", () => requestAnimationFrame(onScroll), { passive: true });

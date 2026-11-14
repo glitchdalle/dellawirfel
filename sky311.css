@@ -13,9 +13,20 @@ main.has-intro { padding-top: 0; }
 .sky-map svg { display: block; overflow: visible; }
 .sky-boros path { fill: none; stroke: #9a978f; stroke-width: .9; stroke-linejoin: round; vector-effect: non-scaling-stroke;
   stroke-dasharray: 1; stroke-dashoffset: 1; }
-.sky-map svg > g + g path { stroke: #fff; stroke-width: .4; fill-opacity: .82; pointer-events: none; }
-.sky311.is-live .sky-map svg > g + g path { pointer-events: auto; }
-.sky311.is-live .sky-map svg > g + g path:hover { fill-opacity: 1; stroke: var(--text); }
+.sky-map { touch-action: pan-y; }                    /* one finger scrolls the page; two fingers belong to the map */
+/* solid, round-capped lines (like the dissertation timeline): one per zip code, in the 311 colors */
+.sky-spikes path { fill: none; stroke-linecap: round; stroke-opacity: .88; pointer-events: none; transition: opacity .3s; }
+.sky311.is-live .sky-spikes path { pointer-events: stroke; cursor: pointer; }
+.sky311.is-live .sky-spikes path:hover { stroke-opacity: 1; filter: brightness(.85); }
+/* zoom buttons (explore step) */
+.sky-zoom { position: absolute; left: 0; bottom: 0; z-index: 3; display: flex; align-items: center; gap: 6px; opacity: 0; pointer-events: none; transition: opacity .4s; }
+.sky311.is-live .sky-zoom { opacity: 1; pointer-events: auto; }
+.sky-zoom button { font: inherit; font-size: 16px; line-height: 1; width: 30px; height: 30px; border: 1px solid var(--text); background: #fff; color: var(--text); cursor: pointer; }
+.sky-zoom button:hover { background: var(--text); color: #fff; }
+.sky-zoom .zr { width: auto; padding: 0 10px; font-size: 12px; display: none; }
+.sky-zoom.zoomed .zr { display: block; }
+.sky-zoom .zh { font-size: 12px; color: var(--muted); margin-left: 4px; display: none; }
+@media (hover: none) { .sky-zoom .zh { display: inline; } .sky-zoom.zoomed .zh { display: none; } }
 .sky-tip { position: absolute; z-index: 3; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px; line-height: 1.4;
   padding: 6px 9px 7px; white-space: nowrap; opacity: 0; transform: translate(-50%, calc(-100% - 8px)); transition: opacity .2s; }
 .sky-tip.show { opacity: 1; }
@@ -42,4 +53,5 @@ main.has-intro { padding-top: 0; }
   .sky-picks button { font-size: 12px; }
   .sky-map { left: var(--pad); top: 290px; bottom: 70px; }
   .sky-key { bottom: 48px; }
+  .sky-zoom { bottom: auto; top: 0; }
 }
