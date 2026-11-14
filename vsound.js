@@ -2,8 +2,8 @@
 // browsers only allow videos to autoplay muted, so each .media video with data-sound gets a small button to turn sound on/off,
 // and a clickable note near the top of the page asks people to turn the sound on (it turns it on and scrolls to the video).
 // the video also "holds" the page: it pins in place for a stretch of scrolling, eases up to full size as a dark stage
-// fades in around it. nothing ever pulls the page back: there's no scroll snapping, the hold is short, and a
-// "continue" button (or the esc key) skips straight past it.
+// fades in around it. nothing ever pulls the page back: there's no scroll snapping, the hold is short, a line along the
+// bottom fills as you scroll through it, and a "scroll to keep going" button (or the esc key) skips straight past it.
 (function () {
   const css = document.createElement("style");
   css.textContent = `
@@ -22,11 +22,16 @@
     .vsound-ask .bars i:nth-child(2) { animation-delay: -.3s; } .vsound-ask .bars i:nth-child(3) { animation-delay: -.6s; }
     @keyframes vs-eq { 0%, 100% { height: 3px; } 50% { height: 11px; } }
     .vsound-ask.gone { opacity: 0; transform: translateY(-8px); pointer-events: none; }
-    .vhold { position: relative; height: 170vh; margin: 48px 0; }
-    .vskip { position: absolute; z-index: 4; left: 50%; bottom: 20px; transform: translateX(-50%); font: inherit; font-size: 12px;
-      text-transform: inherit; color: #fff; background: none; border: 0; padding: 6px 10px; cursor: pointer; opacity: var(--a,0);
-      transition: color .25s; }
-    .vskip:hover { color: #ff3b00; }
+    .vhold { position: relative; height: 140vh; margin: 48px 0; }
+    .vskip { position: absolute; z-index: 4; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px;
+      font: inherit; font-size: 13px; text-transform: inherit; color: #000; background: #fff; border: 0; border-radius: 999px;
+      padding: 7px 14px 8px; cursor: pointer; opacity: var(--a,0); transition: background .25s, color .25s; }
+    .vskip:hover { background: #ff3b00; color: #fff; }
+    @keyframes vs-nudge { 50% { transform: translateY(3px); } }
+    .vskip b { display: inline-block; font-weight: 400; font-size: 15px; line-height: 1; animation: vs-nudge 1.4s ease-in-out infinite; }   /* only the arrow bobs */
+    /* a thin line along the bottom of the stage fills as you scroll through the hold, so it's clear you're moving */
+    .vprog { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: #ff3b00; transform-origin: 0 0;
+      transform: scaleX(var(--p,0)); opacity: var(--a,0); }
     .vhold-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center;
       padding: 64px 0 24px; box-sizing: border-box; background: rgba(0,0,0,var(--a,0)); }   /* clears the fixed header */
     .vhold .media { margin: 0; width: 100%; transform: scale(var(--s,.86)); border-radius: var(--r,24px); will-change: transform; }
@@ -42,8 +47,9 @@
     const stick = document.createElement("div"); stick.className = "vhold-sticky";
     media.parentNode.insertBefore(hold, media); stick.appendChild(media); hold.append(stick);
     // a way out at any time: "continue" under the video, or the esc key, scrolls just past the hold
-    const skip = document.createElement("button"); skip.type = "button"; skip.className = "vskip"; skip.innerHTML = "continue &darr;";
-    stick.appendChild(skip);
+    const skip = document.createElement("button"); skip.type = "button"; skip.className = "vskip"; skip.innerHTML = "scroll to keep going <b>&darr;</b>";
+    const prog = document.createElement("i"); prog.className = "vprog";
+    stick.append(skip, prog);
     const leave = () => scrollTo({ top: hold.getBoundingClientRect().top + scrollY + hold.offsetHeight - innerHeight * .35, behavior: "smooth" });
     skip.addEventListener("click", leave);
     addEventListener("keydown", e => { const r = hold.getBoundingClientRect(); if (e.key === "Escape" && r.top <= 0 && r.bottom >= innerHeight) leave(); });
@@ -51,11 +57,12 @@
     const smooth = t => t * t * (3 - 2 * t);
     let cur = 0, target = 0, raf = 0;
     const apply = () => {
-      cur += (target - cur) * .12;                                                // a little lag, so it eases rather than tracks
+      cur += (target - cur) * .2;                                                 // a little lag, so it eases rather than tracks
       const a = smooth(Math.min(1, cur / IN)), b = smooth(Math.max(0, (cur - OUT) / (1 - OUT)));
       stick.style.setProperty("--s", (.86 + .14 * a - .08 * b).toFixed(4));
       stick.style.setProperty("--r", (24 * (1 - a) + 16 * b).toFixed(1) + "px");
       stick.style.setProperty("--a", (a * (1 - b)).toFixed(3));
+      stick.style.setProperty("--p", cur.toFixed(3));
       if (Math.abs(target - cur) > .0005) raf = requestAnimationFrame(apply); else raf = 0;
     };
     const measure = () => {
