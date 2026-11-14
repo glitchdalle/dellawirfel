@@ -244,6 +244,12 @@ body.info { --bg: #ffffff; --accent: #ff3b00; --muted: #8a8a8a; }   /* white wit
 .resume-dl a { color: var(--accent); }
 .resume-dl a:hover { text-decoration: underline; }
 [id] { scroll-margin-top: 90px; }
+/* about: one portrait, kept small and quiet in the label column beside the bio */
+.portrait { margin-top: 18px; max-width: 260px; }
+.portrait img { width: 100%; aspect-ratio: 6 / 7; object-fit: cover; filter: grayscale(1) contrast(1.04); transition: filter .9s var(--ease); }
+.portrait.in img { transform: none; }                             /* not the media zoom */
+.portrait:hover img { filter: none; }                               /* color comes back on hover */
+.portrait figcaption { margin-top: 8px; font-size: 12px; }
 
 /* contact: the handle fades in, in red, when you hover a link */
 .contact-big a { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
@@ -279,23 +285,22 @@ footer .left { grid-column: 1 / 10; color: var(--muted); }
 /* page transition: a panel wipes over, then off, between pages */
 .wipe {
   position: fixed; inset: 0; z-index: 100; background: var(--text); color: var(--bg);
-  display: flex; align-items: flex-end; padding: var(--pad);
-  font-size: 12vw; font-weight: 700; letter-spacing: -0.05em; line-height: .85;
   transform: translateY(0); transition: transform .7s var(--ease);
   pointer-events: none;
 }
 .wipe.out { transform: translateY(-100%); }
 .wipe.in-from-below { transform: translateY(100%); transition: none; }
-/* the panel can carry the next project's cover image: full bleed, settling from a slight zoom, name over it */
+/* the title on the panel sits exactly where (and how) the destination page sets its own title */
+.wipe-label { position: absolute; left: 0; right: 0; top: 120px; padding: 0 var(--pad); }
+.wipe-label.t-page { font-size: 12vw; font-weight: 700; line-height: .85; letter-spacing: -0.05em; }
+.wipe-label.t-info { font-size: 7vw; font-weight: 300; line-height: .85; letter-spacing: -0.045em; }
+.wipe-label.t-home { top: 34vh; font-family: var(--type-font); font-size: 13vw; font-weight: 300; line-height: .86; letter-spacing: -0.045em; }
+/* or the panel carries the project's cover image, and nothing else: full bleed, settling from a slight zoom */
 .wipe-img { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transform: scale(1.08);
   transition: opacity .45s var(--ease), transform 1.6s var(--ease); }
 .wipe-img.ready { opacity: 1; transform: none; }
-.wipe.has-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0) 55%); }
-.wipe-label { position: relative; z-index: 1; }
-.wipe.has-img .wipe-label { font-size: clamp(44px, 8vw, 140px); font-weight: 300; letter-spacing: -0.045em; }
-.wipe.light { background: #fff; color: var(--text); }            /* data covers (svg) sit on white, contained */
-.wipe.light::after { display: none; }
-.wipe.light .wipe-img { inset: 14% 8% 30%; background-size: contain; }
+.wipe.light { background: #fff; }                                  /* drawings and data covers sit on white, contained */
+.wipe.light .wipe-img { inset: 12% 8%; background-size: contain; }
 
 /* split titles: each letter rises out of a mask */
 .split .mask { display: inline-block; overflow: hidden; vertical-align: top; padding: 0 .06em .06em; margin: 0 -.06em; }
@@ -502,6 +507,9 @@ footer .left { grid-column: 1 / 10; color: var(--muted); }
   .hm-v { font-size: 22px; }
   .hm-1, .hm-2, .hm-3 { grid-column: 1 / 13; }
   .page-title-sm, .resume-head h2 { font-size: 14vw; }
+  .wipe-label.t-info { font-size: 14vw; }
+  .portrait { max-width: 46vw; margin: 12px 0 20px; }
+  .wipe-label.t-home { font-size: 31vw; }
   .c1-9, .c10-12 { grid-column: 1 / 13; } .resume-dl { text-align: left; margin-top: 8px; }
   .contact-big .handle { font-size: 13px; }
   .locator .loc-sec { display: none; }
