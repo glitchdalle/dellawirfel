@@ -2,7 +2,8 @@
 // browsers only allow videos to autoplay muted, so each .media video with data-sound gets a small button to turn sound on/off,
 // and a clickable note near the top of the page asks people to turn the sound on (it turns it on and scrolls to the video).
 // the video also "holds" the page: it pins in place for a stretch of scrolling, eases up to full size as a dark stage
-// fades in around it, and a gentle snap point lets the page settle on it. nothing blocks scrolling; it just lingers.
+// fades in around it. nothing ever pulls the page back: there's no scroll snapping, the hold is short, and a
+// "continue" button (or the esc key) skips straight past it.
 (function () {
   const css = document.createElement("style");
   css.textContent = `
@@ -21,13 +22,15 @@
     .vsound-ask .bars i:nth-child(2) { animation-delay: -.3s; } .vsound-ask .bars i:nth-child(3) { animation-delay: -.6s; }
     @keyframes vs-eq { 0%, 100% { height: 3px; } 50% { height: 11px; } }
     .vsound-ask.gone { opacity: 0; transform: translateY(-8px); pointer-events: none; }
-    .vhold { position: relative; height: 230vh; margin: 48px 0; }
-    .vhold-snap { position: absolute; left: 0; width: 1px; height: 1px; scroll-snap-align: start; }
+    .vhold { position: relative; height: 170vh; margin: 48px 0; }
+    .vskip { position: absolute; z-index: 4; left: 50%; bottom: 20px; transform: translateX(-50%); font: inherit; font-size: 12px;
+      text-transform: inherit; color: #fff; background: none; border: 0; padding: 6px 10px; cursor: pointer; opacity: var(--a,0);
+      transition: color .25s; }
+    .vskip:hover { color: #ff3b00; }
     .vhold-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center;
       padding: 64px 0 24px; box-sizing: border-box; background: rgba(0,0,0,var(--a,0)); }   /* clears the fixed header */
     .vhold .media { margin: 0; width: 100%; transform: scale(var(--s,.86)); border-radius: var(--r,24px); will-change: transform; }
     .vhold .media video { max-height: calc(100vh - 88px); object-fit: contain; }
-    html.has-vhold { scroll-snap-type: y proximity; }
     @media (max-width: 760px) { .vsound-ask { top: 66px; font-size: 12px; padding: 6px 12px 7px; } }`;
   document.head.appendChild(css);
   const vids = [...document.querySelectorAll(".media video[data-sound]")];
@@ -37,9 +40,13 @@
     const media = vids[0].closest(".media");
     hold = document.createElement("div"); hold.className = "vhold";
     const stick = document.createElement("div"); stick.className = "vhold-sticky";
-    const snap = document.createElement("div"); snap.className = "vhold-snap";
-    media.parentNode.insertBefore(hold, media); stick.appendChild(media); hold.append(snap, stick);
-    document.documentElement.classList.add("has-vhold");
+    media.parentNode.insertBefore(hold, media); stick.appendChild(media); hold.append(stick);
+    // a way out at any time: "continue" under the video, or the esc key, scrolls just past the hold
+    const skip = document.createElement("button"); skip.type = "button"; skip.className = "vskip"; skip.innerHTML = "continue &darr;";
+    stick.appendChild(skip);
+    const leave = () => scrollTo({ top: hold.getBoundingClientRect().top + scrollY + hold.offsetHeight - innerHeight * .35, behavior: "smooth" });
+    skip.addEventListener("click", leave);
+    addEventListener("keydown", e => { const r = hold.getBoundingClientRect(); if (e.key === "Escape" && r.top <= 0 && r.bottom >= innerHeight) leave(); });
     const IN = .22, OUT = .8;                                                     // share of the hold spent arriving / leaving
     const smooth = t => t * t * (3 - 2 * t);
     let cur = 0, target = 0, raf = 0;
@@ -54,7 +61,6 @@
     const measure = () => {
       const r = hold.getBoundingClientRect();
       target = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
-      snap.style.top = (IN * (hold.offsetHeight - innerHeight)) + "px";          // the page likes to settle right as it's fully held
       if (!raf) raf = requestAnimationFrame(apply);
     };
     addEventListener("scroll", measure, { passive: true }); addEventListener("resize", measure); measure();
@@ -68,7 +74,7 @@
       const v = vids[0];
       v.muted = false; v.play().catch(() => {});
       v.dispatchEvent(new Event("volumechange"));
-      if (hold) scrollTo({ top: hold.getBoundingClientRect().top + scrollY + .35 * (hold.offsetHeight - innerHeight), behavior: "smooth" });
+      if (hold) scrollTo({ top: hold.getBoundingClientRect().top + scrollY + .3 * (hold.offsetHeight - innerHeight), behavior: "smooth" });
       else v.scrollIntoView({ behavior: "smooth", block: "center" });
     });
     document.body.appendChild(ask);
