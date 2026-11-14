@@ -214,7 +214,11 @@ function titleOf(a) {
 }
 if (!reduceMotion) {
   const wipe = document.createElement("div"); wipe.className = "wipe";
-  wipe.textContent = pageName;
+  // as a page opens, the panel keeps the name it carried on the way here (so a click on "timeless" stays "timeless");
+  // opened directly, it shows this page's own title
+  let carried = ""; try { carried = sessionStorage.getItem("wipe:" + location.pathname) || ""; sessionStorage.removeItem("wipe:" + location.pathname); } catch (e) {}
+  const h1 = document.querySelector(".page-title");
+  wipe.textContent = carried || (h1 && h1.textContent.trim().length < 40 ? h1.textContent.trim() : pageName);
   document.body.appendChild(wipe);
   requestAnimationFrame(() => requestAnimationFrame(() => wipe.classList.add("out")));   // reveal this page
   document.addEventListener("click", e => {
@@ -225,6 +229,7 @@ if (!reduceMotion) {
     e.preventDefault();
     const label = titleOf(a);
     wipe.textContent = label.length < 40 ? label : "";
+    try { sessionStorage.setItem("wipe:" + url.pathname, wipe.textContent); } catch (e) {}
     wipe.classList.remove("out"); wipe.classList.add("in-from-below");
     requestAnimationFrame(() => requestAnimationFrame(() => { wipe.classList.remove("in-from-below"); }));
     setTimeout(() => { location.href = a.href; }, 650);
