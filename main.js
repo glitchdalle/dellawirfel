@@ -204,19 +204,37 @@ addEventListener("scroll", () => requestAnimationFrame(updateLocator), { passive
 updateLocator();
 
 /* ---------- 8. page transitions: panel wipes between pages ----------
-   going to a project, the panel carries that project's cover image (and shows it again as the new page opens).
-   covers are the project's own best image; projects without one keep the plain black panel with the name. */
+   going to a project with a cover, the panel shows only that image (and shows it again as the new page opens).
+   otherwise the panel is black with the page's title, set exactly like that page's own title (same size, weight
+   and place), so the title seems to stay put as the page appears underneath. */
 const SITE_ROOT = document.currentScript ? new URL(".", document.currentScript.src) : new URL("./", location.href);
-const COVERS = {                                        // slug: [image, "cover" (full bleed) or "contain" (on white)]
+const COVERS = {                                        // slug: [image, "cover" (full bleed) | "contain" (on white) | "blank"]
   "remi": ["remi-mockup.jpg", "cover"],
-  "timeless": ["Untitled_Artwork%2012%20copy%203.jpg", "cover"],
+  "timeless": ["images/web/timeless-9.png", "contain"],
   "joanna-vargas-brand": ["images/web/Feed_IDEAL.JV.jpg", "cover"],
   "youth-aging": ["images/web/mockuptryptic.jpg", "cover"],
-  "cuny-dissertations": ["images/cuny-thumb.svg", "contain"],
+  "cuny-dissertations": ["images/cuny-wipe.svg", "contain"],
   "global-city-clusters": ["images/kmeans-thumb.svg", "contain"],
+  "health-app": ["", "blank"],                          // plain black, no title, for now
 };
 const slugOf = url => { const m = new URL(url, location.href).pathname.match(/\/projects\/([^/]+)\.html$/); return m ? m[1] : ""; };
-const coverURL = slug => COVERS[slug] ? new URL(COVERS[slug][0], SITE_ROOT).href : "";
+const coverURL = slug => COVERS[slug] && COVERS[slug][0] ? new URL(COVERS[slug][0], SITE_ROOT).href : "";
+// which title style the destination page uses: project pages and the projects list (big, bold),
+// about / contact (smaller, light), home (the name)
+function titleKind(url) {
+  const p = new URL(url, location.href).pathname;
+  if (/\/(about|contact)\.html$/.test(p)) return "t-info";
+  if (/\/(index\.html)?$/.test(p)) return "t-home";
+  return "t-page";
+}
+// a link's visible title, without list numbers or "next project" labels
+function titleOf(a) {
+  if (a.querySelector(".name")) return a.querySelector(".name").textContent.trim();
+  const c = a.cloneNode(true);
+  c.querySelectorAll(".label").forEach(n => n.remove());
+  c.querySelectorAll("span").forEach(n => { if (/^\s*\d+\s*$/.test(n.textContent)) n.remove(); });
+  return c.textContent.replace(/\s+/g, " ").trim();
+}
 const warmed = new Set();
 function warm(slug) {                                   // fetch a cover before it's needed (hover, touch, focus)
   const u = coverURL(slug); if (!u || warmed.has(u)) return; warmed.add(u); new Image().src = u;
@@ -225,19 +243,20 @@ if (!reduceMotion) {
   const wipe = document.createElement("div"); wipe.className = "wipe";
   wipe.innerHTML = `<div class="wipe-img"></div><span class="wipe-label"></span>`;
   const wImg = wipe.querySelector(".wipe-img"), wLabel = wipe.querySelector(".wipe-label");
-  function dress(label, slug) {
-    wLabel.textContent = label;
-    const u = coverURL(slug);
+  function dress(label, url) {
+    const slug = slugOf(url), cv = COVERS[slug], u = coverURL(slug);
+    wLabel.textContent = cv ? "" : (titleKind(url) === "t-home" ? "della wirfel" : label);   // covers carry no text
+    wLabel.className = "wipe-label " + titleKind(url);
     wipe.classList.toggle("has-img", !!u);
-    wipe.classList.toggle("light", !!u && COVERS[slug][1] === "contain");
+    wipe.classList.toggle("light", !!u && cv[1] === "contain");
     wImg.classList.remove("ready"); wImg.style.backgroundImage = "";
     if (!u) return;
     wImg.style.backgroundImage = `url("${u}")`;
     const im = new Image(); im.onload = () => wImg.classList.add("ready"); im.src = u;   // fades in once it's there
     if (im.complete) wImg.classList.add("ready");
   }
-  const here = slugOf(location.href);
-  dress(here && document.querySelector(".page-title") ? document.querySelector(".page-title").textContent.trim() : pageName, here);
+  const h1 = document.querySelector(".page-title");
+  dress(h1 ? h1.textContent.trim() : pageName, location.href);
   document.body.appendChild(wipe);
   requestAnimationFrame(() => requestAnimationFrame(() => wipe.classList.add("out")));   // reveal this page
   // warm a project's cover as soon as someone points at (or touches) a link to it
@@ -250,8 +269,8 @@ if (!reduceMotion) {
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin || url.pathname === location.pathname || !url.pathname.endsWith(".html") && !url.pathname.endsWith("/")) return;
     e.preventDefault();
-    const label = (a.querySelector(".name") || a).textContent.replace(/next project →/, "").trim().split("\n")[0];
-    dress(label.length < 40 ? label : "", slugOf(url.href));
+    const label = titleOf(a);
+    dress(label.length < 60 ? label : "", url.href);
     wipe.classList.remove("out"); wipe.classList.add("in-from-below");
     requestAnimationFrame(() => requestAnimationFrame(() => { wipe.classList.remove("in-from-below"); }));
     setTimeout(() => { location.href = a.href; }, 650);
