@@ -37,6 +37,14 @@ document.querySelectorAll(".kmap").forEach(box => {
   const landG = document.createElementNS(NS, "g"); landG.setAttribute("clip-path", "url(#km-clip)");   // clip in screen space
   land.setAttribute("d", KM_LAND); land.setAttribute("class", "km-land");
   landG.appendChild(land); svg.appendChild(landG);                             // under every circle
+  // a small step counter above each caption, so it's clear the scene is moving through a sequence
+  const hint = box.querySelector(".km-hint"); if (hint) hint.innerHTML = "keep scrolling &darr;";
+  const STEP_NAMES = ["the data", "clustering", "five groups", "the reveal", "explore"];
+  acts.forEach((el, i) => {
+    const e = document.createElement("p"); e.className = "km-step";
+    e.innerHTML = `<span>0${i + 1} / 0${acts.length}</span> ${STEP_NAMES[i] || ""}`;
+    el.prepend(e);
+  });
   const cities = D.r.map(r => ({ name: r[0], k: r[1], country: D.c[r[2]], lat: r[3], lon: r[4], elev: r[5], pop: r[6] }));
   let isLive = false, pick = 0;
   cities.forEach(c => {
@@ -47,6 +55,20 @@ document.querySelectorAll(".kmap").forEach(box => {
       tip.style.left = c.x + "px"; tip.style.top = c.y - c.r + "px"; tip.classList.add("show");
     });
     el.addEventListener("mouseleave", () => tip.classList.remove("show"));
+  });
+
+  // labels under each of the five groups (acts 2 and the pause)
+  const glabels = CL.map(C => {
+    const t = document.createElementNS(NS, "text"); t.setAttribute("class", "km-glabel"); t.setAttribute("text-anchor", "middle");
+    t.innerHTML = `<tspan class="km-gk">cluster ${C.k}</tspan><tspan class="km-gn" dy="1.3em">${C.name}</tspan>`;
+    t.style.fill = C.color; svg.appendChild(t); return t;
+  });
+  // callouts for a few cities once they land on the map (positions are tableau's latitude/longitude)
+  const CALLOUTS = ["New York City", "London", "Cairo", "Tokyo", "Bogotá", "Lagos", "Nairobi"];
+  const callouts = CALLOUTS.map(n => cities.find(c => c.name === n)).filter(Boolean).map(c => {
+    const t = document.createElementNS(NS, "text"); t.setAttribute("class", "km-call");
+    t.textContent = c.name === "New York City" ? "NYC" : c.name.toLowerCase();
+    t.style.fill = CL[c.k - 1].color; svg.appendChild(t); return { c, t };
   });
 
   // cluster names along the bottom (clickable in the explore step)
@@ -94,6 +116,9 @@ document.querySelectorAll(".kmap").forEach(box => {
         const rad = step * Math.sqrt(j + .5), ang = j * GOLD;
         c.gx = centers[i][0] + rad * Math.cos(ang); c.gy = centers[i][1] + rad * Math.sin(ang);
       });
+      const bottom = Math.max(...cities.filter(c => c.k === C.k).map(c => c.gy));
+      glabels[i].setAttribute("x", centers[i][0]); glabels[i].setAttribute("y", bottom + r + 18);
+      glabels[i].querySelector(".km-gn").setAttribute("x", centers[i][0]);
     });
     // act 3: tableau's latitude/longitude, plain equirectangular, framed around every city in the sheet
     const lo0 = -125, lo1 = 160, la0 = -45, la1 = 65, pad = 10;
@@ -106,6 +131,10 @@ document.querySelectorAll(".kmap").forEach(box => {
       c.d1 = rng() * .4;                                                      // each circle sets off a beat apart
       c.d3 = (c.k - 1) * .07 + rng() * .12;                                   // clusters dissolve one after another
       c.el.setAttribute("r", r);
+    });
+    callouts.forEach(({ c, t }) => {                                           // label sits just right of its city
+      const left = c.mx > W - 90;
+      t.setAttribute("x", c.mx + (left ? -8 : 8)); t.setAttribute("y", c.my + 4); t.setAttribute("text-anchor", left ? "end" : "start");
     });
   }
 
@@ -121,6 +150,10 @@ document.querySelectorAll(".kmap").forEach(box => {
     const float = reduce ? 0 : (1 - clamp(g * 1.4)) * 3.2 + (p > GATHER[1] && p < TRAVEL[0] ? .6 : 0);   // drift in act 1, a breath in the pause
     const time = now / 1000;
     land.style.opacity = clamp((tr - .25) / .5).toFixed(3);                     // the world fades in as the cities arrive
+    const gl = clamp((g - .7) / .3) * (1 - clamp(tr * 4));                       // group labels: in once gathered, out as they travel
+    glabels.forEach(t => t.style.opacity = gl.toFixed(3));
+    const cl = clamp((tr - .85) / .15);                                          // city callouts once they've landed
+    callouts.forEach(({ c, t }) => t.style.opacity = (cl * (isLive && pick && pick !== c.k ? .15 : 1)).toFixed(3));
     cities.forEach(c => {
       const t1 = back(clamp((g - c.d1) / .6)), t3 = inOut(clamp((tr - c.d3) / .7));
       const fx = Math.sin(time * c.fq + c.ph) * float, fy = Math.cos(time * c.fq * .8 + c.ph) * float;

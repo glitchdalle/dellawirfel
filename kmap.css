@@ -9,6 +9,12 @@ main.has-intro { padding-top: 0; }
 .km-act.on { opacity: 1; transform: none; }
 .km-act h2 { font-size: clamp(30px, 3.8vw, 58px); font-weight: 500; letter-spacing: -0.035em; line-height: 1; margin-bottom: 14px; }
 .km-act p { font-size: clamp(15px, 1.3vw, 19px); line-height: 1.35; color: var(--muted); max-width: 620px; }
+.km-act .km-step { font-size: 12px; color: var(--muted); margin-bottom: 10px; letter-spacing: .02em; }
+.km-act .km-step span { color: var(--text); font-weight: 600; margin-right: 6px; font-variant-numeric: tabular-nums; }
+.km-glabel { font-size: 12px; pointer-events: none; opacity: 0; }
+.km-gk { font-weight: 700; }
+.km-gn { fill: var(--muted); }
+.km-call { font-size: 11px; font-weight: 600; pointer-events: none; opacity: 0; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
 .km-act p b { color: var(--text); font-weight: 500; }
 .kmap-map { position: absolute; left: var(--pad); right: var(--pad); top: 280px; bottom: 64px; }
 .kmap-map svg { display: block; overflow: visible; }
@@ -31,8 +37,10 @@ main.has-intro { padding-top: 0; }
 .km-chips button i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: 0; }
 .km-chips.picking button:not(.on) { opacity: .35; }
 .km-chips button.on { font-weight: 700; }
-.km-hint { position: absolute; right: var(--pad); bottom: 22px; transition: opacity .4s; }
-.kmap.started .km-hint { opacity: 0; }
+.kmap .km-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); transition: opacity .4s; color: var(--text); font-size: 12px;
+  animation: km-nudge 1.8s var(--ease) infinite; }
+@keyframes km-nudge { 50% { transform: translate(-50%, 4px); } }
+.kmap.is-live .km-hint { opacity: 0; animation: none; }   /* keeps nudging until the map is explorable */
 @media (max-width: 760px) {
   .km-copy { top: 96px; }
   .km-act h2 { font-size: 28px; }
@@ -40,4 +48,5 @@ main.has-intro { padding-top: 0; }
   .kmap-map { top: 290px; bottom: 96px; }
   .km-chips { justify-content: flex-start; bottom: 48px; gap: 6px 14px; }
   .km-chips button { font-size: 12px; }
+  .kmap .km-hint { bottom: auto; top: 262px; left: auto; right: var(--pad); transform: none; animation: none; }
 }
