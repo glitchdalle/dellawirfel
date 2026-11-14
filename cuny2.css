@@ -1,0 +1,27 @@
+/* CUNY dissertations, part two: the six circles become lines (picks up exactly where part one ends) */
+.bub2 { position: relative; height: 420vh; margin-top: -100vh; }       /* overlaps part one's last screen, so the hand-off is seamless */
+.bub2-sticky { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding-top: 72px; overflow: hidden;
+  background: var(--bg); visibility: hidden; z-index: 3; }
+.bub2-sticky.on { visibility: visible; }                                 /* only shows once part one has finished */
+.bub2-head { position: relative; }
+.bub2-ledes { position: relative; min-height: 2.7em; }
+.bub2-lede { position: absolute; left: 0; right: 0; bottom: 0; opacity: 0; transition: opacity .6s var(--ease); }
+.bub2-lede.on { opacity: 1; }
+.bub2-stage { position: relative; flex: 1; min-height: 0; margin: 8px var(--pad) 40px; }
+.bub2-stage svg { display: block; overflow: visible; }
+.b2-grid line { stroke: #e6e6e6; stroke-width: 1; }
+.b2-grid text { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.b2-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.b2-lab { font-size: 13px; opacity: 0; }
+.b2-inner { font-size: 11px; fill: #fff; pointer-events: none; font-variant-numeric: tabular-nums; }
+.b2-t { font-weight: 700; }
+.b2-under { font-size: 13px; fill: var(--text); pointer-events: none; }
+.b2-row { font-size: 13px; fill: var(--muted); }
+.b2-upp { font-weight: 700; font-variant-numeric: tabular-nums; }
+.b2-n { font-weight: 500; }
+.b2-pp { fill: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .bub2-stage { margin-bottom: 56px; }
+  .b2-lab { font-size: 11px; }
+  .b2-under { font-size: 11px; }
+}

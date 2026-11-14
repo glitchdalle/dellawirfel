@@ -6,6 +6,7 @@
   <title>CUNY dissertation topics — della wirfel</title>
   <meta name="description" content="della wirfel — data visualization &amp; product designer, new york.">
   <link rel="stylesheet" href="../style.css?v=7">
+  <link rel="stylesheet" href="../cuny2.css?v=1">
 </head>
 <body class="">
 
@@ -53,6 +54,20 @@
           <img class="hand-closed" src="../images/hand_1.png" alt="" style="position:absolute;top:0;left:0;width:100%;transform:translateX(115%)">
           <img class="hand-open" src="../images/hand_2.png" alt="" style="position:absolute;top:0;left:0;width:100%;transform:translateX(115%);opacity:0">
         </div>
+      </div>
+    </div>
+    <!-- part two: the same six circles become lines (cuny2.js). it reuses the data-bubbles above; nothing new is computed -->
+    <div class="bub2">
+      <div class="bub2-sticky">
+        <div class="grid12 bubbles-head">
+          <div class="c1-3"><span class="bub-year bub2-year">2023</span><span class="label bub-range">2000 &rarr; 2023</span></div>
+          <div class="c4-12 bub2-ledes">
+            <p class="bub-lede bub2-lede on"></p>
+            <p class="bub-lede bub2-lede">now each circle becomes a line, retracing its topic's weight year by year from 2000 to 2023.</p>
+            <p class="bub-lede bub2-lede">three topics climbed and three fell. social, race &amp; community gained the most (+4.77 pp); chemical &amp; material processes lost the most (&minus;3.49 pp).</p>
+          </div>
+        </div>
+        <div class="bub2-stage"><svg></svg></div>
       </div>
     </div>
 
@@ -104,5 +119,6 @@
   </footer>
 
   <script src="../main.js?v=7"></script>
+  <script src="../cuny2.js?v=1"></script>
 </body>
 </html>
