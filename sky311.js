@@ -36,6 +36,7 @@ document.querySelectorAll(".sky311").forEach(box => {
     Object.values(by).forEach(s => spikes.push(s));
   });
   T.forEach(t => { t.top = spikes.reduce((a, s) => ((s.n[t.k] || 0) > (a.n[t.k] || 0) ? s : a)); t.max = t.top.n[t.k]; });   // tallest spike of each type
+  const GT = T.reduce((a, t) => t.max > a.max ? t : a), G = GT.max;              // the tallest line of any type: the shared scale
   spikes.sort((a, b) => b.lat - a.lat);                                          // north first, so southern spikes sit in front
 
   // line-art boroughs (nyc city planning boundaries, simplified)
@@ -134,15 +135,17 @@ document.querySelectorAll(".sky311").forEach(box => {
     spikes.forEach(s => {
       let h, col;
       if (L) {
-        // every type on its own scale; the focused one stays solid, the others fade in as the group spreads
+        // one type alone: its own scale. all four: one shared scale (the tallest line of any type), so every height
+        // compares honestly with every other. the focused type slides between the two as the group spreads.
         s.els.forEach((el, k) => {
-          const n = s.n[T[k].k] || 0, hk = Math.max(0, n / T[k].max * hMax), x = s.x + (k - 1.5) * gap * allK;
+          const den = T[k].max + (G - T[k].max) * allK;
+          const n = s.n[T[k].k] || 0, hk = Math.max(0, n / den * hMax), x = s.x + (k - 1.5) * gap * allK;
           el.setAttribute("d", `M${x.toFixed(1)} ${s.y.toFixed(1)}V${(s.y - hk).toFixed(1)}`);
           el.style.stroke = `rgb(${T[k].color})`; el.style.strokeWidth = thin;
           el.style.transition = "none";
           el.style.opacity = !n ? 0 : (k === focus ? 1 : allK);
         });
-        s.h = Math.max(0, (s.n[T[focus].k] || 0) / T[focus].max * hMax);
+        s.h = Math.max(0, (s.n[T[focus].k] || 0) / (T[focus].max + (G - T[focus].max) * allK) * hMax);
         return;
       }
       s.els.forEach((el, k) => { if (k) el.style.opacity = 0; });
@@ -178,7 +181,7 @@ document.querySelectorAll(".sky311").forEach(box => {
     // scale key: what the tallest spike stands for right now
     const cur = L || (i === 0 ? null : (f > .5 ? to : from));
     if (L && pick < 0) {
-      key.innerHTML = `<i style="height:${hMax}px"></i><span>each color has its own scale. tallest line =<br>` +
+      key.innerHTML = `<i style="height:${hMax}px"></i><span>one scale for all four: tallest possible line = <b>${fmt(G)}</b><br>tallest of each type:<br>` +
         T.map(t => `<b style="color:rgb(${t.color})">&#9679;</b> ${t.name} <b>${fmt(t.max)}</b>`).join("<br>") + `</span>`;
       key.classList.add("show");
     } else if (cur && cur.g) {
@@ -246,7 +249,7 @@ document.querySelectorAll(".sky311").forEach(box => {
   }, { passive: false });
   // the explore caption mentions tapping and zooming
   const lastP = acts[acts.length - 1].querySelector("p");
-  if (lastP) lastP.textContent = "all four complaint types, side by side in every zip code. tap a type to see it alone, hover or tap a line for its numbers, and pinch or use + / − to zoom.";
+  if (lastP) lastP.textContent = "all four types on one scale, so the heights compare directly. tap a type to see it alone, or a line for its numbers.";
 
   paintPicks();
   layout();
