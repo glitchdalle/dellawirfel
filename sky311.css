@@ -15,6 +15,9 @@ main.has-intro { padding-top: 0; }
   stroke-dasharray: 1; stroke-dashoffset: 1; }
 .sky-map { touch-action: pan-y; }                    /* one finger scrolls the page; two fingers belong to the map */
 /* solid, round-capped lines (like the dissertation timeline): one per zip code, in the 311 colors */
+.sky-tags { pointer-events: none; transition: opacity .3s; }
+.sky-tags path { fill: none; stroke: var(--text); stroke-width: .8; }
+.sky-tags text { font-size: 11px; font-weight: 600; fill: var(--text); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; font-variant-numeric: tabular-nums; }
 .sky-spikes path { fill: none; stroke-linecap: round; stroke-opacity: .88; pointer-events: none; transition: opacity .3s; }
 .sky311.is-live .sky-spikes path { pointer-events: stroke; cursor: pointer; }
 .sky311.is-live .sky-spikes path:hover { stroke-opacity: 1; filter: brightness(.85); }
@@ -51,7 +54,7 @@ main.has-intro { padding-top: 0; }
   .sky-act p { font-size: 14px; }
   .sky-picks { flex-direction: row; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; }
   .sky-picks button { font-size: 12px; }
-  .sky-map { left: var(--pad); top: 290px; bottom: 70px; }
+  .sky-map { left: var(--pad); top: 270px; bottom: 60px; }
   .sky-key { bottom: 48px; }
   .sky-zoom { bottom: auto; top: 0; }
 }

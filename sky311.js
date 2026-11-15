@@ -43,6 +43,13 @@ document.querySelectorAll(".sky311").forEach(box => {
     const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); p.setAttribute("pathLength", "1"); boroG.appendChild(p); return p;
   });
   const spikeG = document.createElementNS(NS, "g"); spikeG.setAttribute("class", "sky-spikes"); svg.appendChild(spikeG);
+  // the three tallest lines of whichever complaint type is showing get their zip code, with a thin leader line
+  const tagG = document.createElementNS(NS, "g"); tagG.setAttribute("class", "sky-tags"); svg.appendChild(tagG);
+  const tags = [0, 1, 2].map(() => {
+    const g = document.createElementNS(NS, "g"), l = document.createElementNS(NS, "path"), t = document.createElementNS(NS, "text");
+    g.append(l, t); tagG.appendChild(g); return { g, l, t };
+  });
+  const top3 = T.map(t => spikes.filter(s => s.n[t.k]).sort((a, b) => b.n[t.k] - a.n[t.k]).slice(0, 3));   // by that type's count
   let tipFor = null;
   function showTip(s) {
     tipFor = s;
@@ -66,9 +73,10 @@ document.querySelectorAll(".sky311").forEach(box => {
   function layout() {
     W = mapEl.clientWidth; H = mapEl.clientHeight;
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("width", W); svg.setAttribute("height", H);
-    const bw = 540, bh = 410, top = H * .32;                                      // leave headroom for the lines
-    sc = Math.min((W - 20) / bw, (H - top - 16) / bh);
-    ox = (W - bw * sc) / 2; oy = top + (H - top - 16 - bh * sc) / 2;
+    const small = innerWidth <= 760;
+    const bw = 540, bh = 410, top = H * (small ? .26 : .32);                     // leave headroom for the lines
+    sc = Math.min((W - (small ? 4 : 20)) / bw, (H - top - 16) / bh);
+    ox = (W - bw * sc) / 2; oy = top + (small ? 0 : (H - top - 16 - bh * sc) / 2);   // on a phone the map sits right under the text
     hMax = Math.min(H * .33, top + bh * sc * .5);
     lw = Math.min(6, Math.max(2.4, sc * 4.2));                                    // line thickness = its end-dot, like the timeline
     spikes.forEach(s => { s.bx = ox + (s.lon + 74.26) * 1000 * K * sc; s.by = oy + (40.92 - s.lat) * 1000 * sc; });
@@ -123,6 +131,22 @@ document.querySelectorAll(".sky311").forEach(box => {
       s.el.style.opacity = i === 0 || (L && !s.n[T[L.t].k]) ? 0 : 1;              // no line before the city is drawn, or where a zip has none
     });
     if (tipFor) showTip(tipFor);
+    // zip labels on the three tallest lines (the type that's showing, or the one being moved toward)
+    const showT = L ? L.t : (i === 0 ? -1 : (f > .5 ? to.t : from.t));
+    const tagOn = showT >= 0 && (L || i !== 0) ? (L ? 1 : (i === 1 ? clamp((f - .6) / .4) : Math.abs(f - .5) * 2)) : 0;
+    tagG.style.opacity = tagOn.toFixed(3);
+    if (showT >= 0) {
+      // labels stack above the tallest of the three, in clear air; each leader goes straight up from its line
+      const tops = top3[showT].map(s => s.y - s.h - lw / 2), base = Math.min(...tops) - 16;
+      top3[showT].forEach((s, k) => {
+        const tg = tags[k], tx = s.x, ty = tops[k], ly = base - k * 16;          // tallest sits lowest, closest to its line
+        const side = s.x > W * .7 ? -1 : 1;                                       // near the right edge, labels point left
+        tg.l.setAttribute("d", `M${tx.toFixed(1)} ${(ty - 3).toFixed(1)}V${ly.toFixed(1)}H${(tx + side * 6).toFixed(1)}`);
+        tg.t.textContent = s.zip;
+        tg.t.setAttribute("x", (tx + side * 9).toFixed(1)); tg.t.setAttribute("y", (ly + 4).toFixed(1));
+        tg.t.setAttribute("text-anchor", side > 0 ? "start" : "end");
+      });
+    }
     // scale key: what the tallest spike stands for right now
     const cur = L || (i === 0 ? null : (f > .5 ? to : from));
     if (cur && cur.g) {
