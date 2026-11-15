@@ -44,6 +44,8 @@ main.has-intro { padding-top: 0; }
 .sky-picks button { font: inherit; font-size: 14px; text-transform: inherit; background: none; border: 0; padding: 0; color: var(--muted);
   cursor: pointer; text-align: left; transition: color .25s; }
 .sky-picks button i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: 0; }
+.sky-picks button i.all { width: auto; height: auto; border-radius: 0; display: inline-flex; gap: 2px; vertical-align: -1px; }
+.sky-picks button i.all b { display: block; width: 3px; height: 10px; border-radius: 2px; }
 .sky-picks button.on, .sky-picks button:hover { color: var(--text); }
 .sky-picks button.on { font-weight: 700; }
 .sky-hint { position: absolute; right: var(--pad); bottom: 22px; transition: opacity .4s; }

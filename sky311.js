@@ -15,8 +15,9 @@ document.querySelectorAll(".sky311").forEach(box => {
   const NS = "http://www.w3.org/2000/svg";
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const svg = box.querySelector("svg"), mapEl = box.querySelector(".sky-map"), tip = box.querySelector(".sky-tip");
-  const acts = [...box.querySelectorAll(".sky-act")], key = box.querySelector(".sky-key"), picks = box.querySelector(".sky-picks");
-  acts.forEach(el => { el.innerHTML = el.innerHTML.replace(/spike/g, "line"); });   // the page's captions say "spike"; they're lines now
+  const acts = [...box.querySelectorAll(".sky-act")], key = box.querySelector(".sky-key");
+  acts.forEach(el => el.querySelectorAll("h2, p").forEach(t => { t.innerHTML = t.innerHTML.replace(/spike/g, "line"); }));   // captions say "spike"; they're lines now
+  const picks = box.querySelector(".sky-picks");
   const zoomUI = document.createElement("div"); zoomUI.className = "sky-zoom"; mapEl.appendChild(zoomUI);
   const BORO = { X: "bronx", K: "brooklyn", M: "manhattan", Q: "queens", S: "staten island" };
   const T = [   // the four complaint types, in story order
@@ -53,15 +54,19 @@ document.querySelectorAll(".sky311").forEach(box => {
   let tipFor = null;
   function showTip(s) {
     tipFor = s;
-    tip.innerHTML = `<b>${s.zip}</b> &middot; ${BORO[s.b]}<br>` + T.map(t => `<span${t === T[pick] ? ' class="on"' : ""}>${t.name}: ${(s.n[t.k] || 0).toLocaleString("en-US")}</span>`).join("<br>");
+    tip.innerHTML = `<b>${s.zip}</b> &middot; ${BORO[s.b]}<br>` + T.map(t => `<span${pick < 0 || t === T[pick] ? ' class="on"' : ""}>${t.name}: ${(s.n[t.k] || 0).toLocaleString("en-US")}</span>`).join("<br>");
     tip.style.left = s.x + "px"; tip.style.top = s.y - s.h - lw / 2 + "px"; tip.classList.add("show");
   }
   const hideTip = () => { tipFor = null; tip.classList.remove("show"); };
   spikes.forEach(s => {
-    s.el = document.createElementNS(NS, "path"); spikeG.appendChild(s.el);
-    s.el.addEventListener("mouseenter", () => { if (live) showTip(s); });
-    s.el.addEventListener("mouseleave", hideTip);
-    s.el.addEventListener("click", e => { if (live) { e.stopPropagation(); tipFor === s ? hideTip() : showTip(s); } });   // tap on a phone
+    // four lines per zip, one per complaint type. the scroll story uses the first; explore spreads all four side by side
+    s.els = T.map(() => { const el = document.createElementNS(NS, "path"); spikeG.appendChild(el); return el; });
+    s.el = s.els[0];
+    s.els.forEach(el => {
+      el.addEventListener("mouseenter", () => { if (live) showTip(s); });
+      el.addEventListener("mouseleave", hideTip);
+      el.addEventListener("click", e => { if (live) { e.stopPropagation(); tipFor === s ? hideTip() : showTip(s); } });   // tap on a phone
+    });
   });
   mapEl.addEventListener("click", hideTip);
 
@@ -106,7 +111,16 @@ document.querySelectorAll(".sky311").forEach(box => {
   const fmt = n => n.toLocaleString("en-US");
   // what a stop looks like: which type, measured against which type's tallest spike
   const look = i => i <= 0 ? { t: 0, scale: 0, g: 0 } : { t: STOPS[i].t, scale: STOPS[i].scale ?? STOPS[i].t, g: 1 };
-  let p = 0, live = false, pick = 0, lastAct = -1;
+  // explore: pick = -1 shows all four types at once; focus = the single type shown when they fold back together
+  let p = 0, live = false, pick = -1, focus = 3, lastAct = -1, allK = 0, tw = 0;
+  function tweenAll() {                                                           // spread out / fold back, smoothly
+    const goal = live && pick < 0 ? 1 : 0;
+    allK += (goal - allK) * (reduce ? 1 : .14);
+    if (Math.abs(goal - allK) < .004) allK = goal;
+    draw();
+    tw = allK !== goal ? requestAnimationFrame(tweenAll) : 0;
+  }
+  const startTween = () => { if (!tw) tw = requestAnimationFrame(tweenAll); };
   function draw() {
     // where we are between two stops
     let i = 0; STOPS.forEach((s, k) => { if (p >= s.at) i = k; });
@@ -115,11 +129,25 @@ document.querySelectorAll(".sky311").forEach(box => {
     const from = i === 0 ? { t: 0, scale: 0, g: 0 } : A, to = i === 0 ? { t: 0, scale: 0, g: 0 } : B;
     const lineIn = i === 0 ? f : 1;
     boroPaths.forEach(b => b.style.strokeDashoffset = (1 - lineIn).toFixed(3));
-    const L = live ? { t: pick, scale: pick, g: 1 } : null;
+    const L = live ? { t: focus, scale: focus, g: 1 } : null;
+    const gap = lw * .62, thin = lw * (1 - .48 * allK);
     spikes.forEach(s => {
       let h, col;
-      if (L) { h = (s.n[T[L.t].k] || 0) / T[L.scale].max; col = T[L.t].color; }
-      else {
+      if (L) {
+        // every type on its own scale; the focused one stays solid, the others fade in as the group spreads
+        s.els.forEach((el, k) => {
+          const n = s.n[T[k].k] || 0, hk = Math.max(0, n / T[k].max * hMax), x = s.x + (k - 1.5) * gap * allK;
+          el.setAttribute("d", `M${x.toFixed(1)} ${s.y.toFixed(1)}V${(s.y - hk).toFixed(1)}`);
+          el.style.stroke = `rgb(${T[k].color})`; el.style.strokeWidth = thin;
+          el.style.transition = "none";
+          el.style.opacity = !n ? 0 : (k === focus ? 1 : allK);
+        });
+        s.h = Math.max(0, (s.n[T[focus].k] || 0) / T[focus].max * hMax);
+        return;
+      }
+      s.els.forEach((el, k) => { if (k) el.style.opacity = 0; });
+      s.el.style.transition = "";
+      {
         const h0 = from.g * (s.n[T[from.t].k] || 0) / T[from.scale].max, h1 = to.g * (s.n[T[to.t].k] || 0) / T[to.scale].max;
         const g = i === 1 ? f : 1;                                                  // heat grows out of the ground
         h = i === 1 ? h1 * g : h0 + (h1 - h0) * f;
@@ -133,7 +161,7 @@ document.querySelectorAll(".sky311").forEach(box => {
     if (tipFor) showTip(tipFor);
     // zip labels on the three tallest lines (the type that's showing, or the one being moved toward)
     const showT = L ? L.t : (i === 0 ? -1 : (f > .5 ? to.t : from.t));
-    const tagOn = showT >= 0 && (L || i !== 0) ? (L ? 1 : (i === 1 ? clamp((f - .6) / .4) : Math.abs(f - .5) * 2)) : 0;
+    const tagOn = showT >= 0 && (L || i !== 0) ? (L ? 1 - allK : (i === 1 ? clamp((f - .6) / .4) : Math.abs(f - .5) * 2)) : 0;   // no labels when all four show
     tagG.style.opacity = tagOn.toFixed(3);
     if (showT >= 0) {
       // labels stack above the tallest of the three, in clear air; each leader goes straight up from its line
@@ -149,7 +177,11 @@ document.querySelectorAll(".sky311").forEach(box => {
     }
     // scale key: what the tallest spike stands for right now
     const cur = L || (i === 0 ? null : (f > .5 ? to : from));
-    if (cur && cur.g) {
+    if (L && pick < 0) {
+      key.innerHTML = `<i style="height:${hMax}px"></i><span>each color has its own scale. tallest line =<br>` +
+        T.map(t => `<b style="color:rgb(${t.color})">&#9679;</b> ${t.name} <b>${fmt(t.max)}</b>`).join("<br>") + `</span>`;
+      key.classList.add("show");
+    } else if (cur && cur.g) {
       const t = T[cur.scale];
       key.innerHTML = `<i style="height:${hMax}px"></i><span>tallest possible line = <b>${fmt(t.max)}</b> complaints<br>(${t.top.zip}, ${BORO[t.top.b]}, ${t.name})</span>`;
       key.classList.add("show");
@@ -159,16 +191,22 @@ document.querySelectorAll(".sky311").forEach(box => {
     const r = box.getBoundingClientRect();
     p = clamp(-r.top / (r.height - innerHeight));
     const was = live; live = p >= LIVE;
-    if (was && !live) { hideTip(); pick = 3; paintPicks(); if (z > 1) { z = 1; tx = ty = 0; place(); } }
+    if (was && !live) { hideTip(); pick = -1; focus = 3; allK = 0; paintPicks(); if (z > 1) { z = 1; tx = ty = 0; place(); } }
+    if (!was && live) { pick = -1; focus = 3; allK = 0; paintPicks(); startTween(); }   // mold, as the story left it, then all four spread out
     box.classList.toggle("is-live", live); box.classList.toggle("started", p > .02);
     const act = ACT_AT.reduce((a, at, k) => p >= at ? k : a, 0);
     if (act !== lastAct) { lastAct = act; acts.forEach((el, k) => el.classList.toggle("on", k === act)); }
     draw();
   }
   // explore: switch the skyline between the four complaint types
-  picks.innerHTML = T.map((t, k) => `<button type="button" data-k="${k}"><i style="background:rgb(${t.color})"></i>${t.name}</button>`).join("");
+  picks.innerHTML = `<button type="button" data-k="-1"><i class="all">${T.map(t => `<b style="background:rgb(${t.color})"></b>`).join("")}</i>all four</button>` + T.map((t, k) => `<button type="button" data-k="${k}"><i style="background:rgb(${t.color})"></i>${t.name}</button>`).join("");
   function paintPicks() { picks.querySelectorAll("button").forEach(b => b.classList.toggle("on", +b.dataset.k === pick)); }
-  picks.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { pick = +b.dataset.k; paintPicks(); draw(); }));
+  picks.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    const k = +b.dataset.k;
+    if (k >= 0 && pick >= 0 && k !== focus) { focus = k; }                          // one type to another: swap
+    else if (k >= 0) focus = k;                                                   // from all four: the others fold away
+    pick = k; paintPicks(); hideTip(); startTween(); draw();
+  }));
   // ---------- zoom: pinch with two fingers (one finger keeps scrolling the page), or + / - / reset ----------
   function zoomAt(k, mx, my) {
     const nz = Math.min(8, Math.max(1, z * k)); k = nz / z; z = nz;
@@ -208,9 +246,9 @@ document.querySelectorAll(".sky311").forEach(box => {
   }, { passive: false });
   // the explore caption mentions tapping and zooming
   const lastP = acts[acts.length - 1].querySelector("p");
-  if (lastP) lastP.textContent = "hover or tap a line for its zip code's numbers, switch between complaint types, and pinch or use + / − to zoom.";
+  if (lastP) lastP.textContent = "all four complaint types, side by side in every zip code. tap a type to see it alone, hover or tap a line for its numbers, and pinch or use + / − to zoom.";
 
-  pick = 3; paintPicks();
+  paintPicks();
   layout();
   addEventListener("scroll", () => requestAnimationFrame(onScroll), { passive: true });
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { layout(); onScroll(); }, 150); });
