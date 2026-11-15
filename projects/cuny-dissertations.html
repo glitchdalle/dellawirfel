@@ -37,7 +37,7 @@
 
     <section class="grid12">
       <p class="c1-3 label">overview</p>
-      <p class="c4-12 big reveal">I trained an LDA topic model on 16,738 CUNY graduate center dissertation abstracts spanning 45 years, then tracked how the popularity of topics shifted over time. the approach was exploratory rather than keyword-driven: the model surfaced recurring patterns on its own, and from 25 topics I chose six to look into.</p>
+      <p class="c4-12 big reveal">I trained a topic model on 16,738 dissertation abstracts from the CUNY graduate center, from the last 45 years. out of 25 topics I followed the six that changed the most.</p>
     </section>
 
     <!-- scroll-driven topic circles. data comes straight from the tableau workbook:
@@ -75,8 +75,7 @@
     <section class="grid12 bub-notes">
       <p class="c1-3 label">reading the circles</p>
       <div class="c4-9">
-        <p class="reveal"><b>what you're seeing.</b> each circle is one topic the model found. its area is that topic's average weight for the year shown: across every abstract from that year, the share of the text the model assigned to that topic, on average. sizes use the annual values from the tableau workbook, not the three-year rolling average in the dashboard, so they jump around from year to year. the timeline runs from 2000 to 2023, the last year with annual data.</p>
-        <p class="reveal"><b>the pp number.</b> under each circle is the change in percentage points between the 2000&ndash;2009 average and the 2017&ndash;2024 average, the comparison used to pick these six. it compares two decades rather than two single years, so it won't equal the difference between the first and last circle.</p>
+        <p class="reveal">each circle is one topic, and its size is how much of that year's abstracts went to it. the number under it is how much it went up or down between 2000&ndash;2009 and 2017&ndash;2024, which is how I picked them.</p>
         <p class="reveal"><b>what stands out.</b></p>
         <ul class="bub-points reveal">
           <li>social, race &amp; community roughly tripled, from 3.68% in 2000 to 11.15% in 2023, its highest year.</li>
@@ -94,16 +93,12 @@
       <p class="c1-12 label embed-caption">interactive — hover and click to explore</p>
     </div>
     <section class="grid12">
-      <p class="c1-3 label">method</p>
-      <p class="c4-9 reveal">topic selection was data-driven: the three topics with the largest increases in average topic weight and the three with the largest decreases, comparing two well-populated periods (2000–2009 and 2017–2024). each dissertation gets a probability distribution across all 25 topics, so aggregating those weights by year reveals shifts that aren't obvious from any single document.</p>
+      <p class="c1-3 label">cleaning</p>
+      <p class="c4-9 reveal">what surprised me about the data was the artifacts I had to remove, such as lcub or rcub for left curly brackets, right curly brackets. they were prominent in number enough that they could skew the results, and needed to be cleaned.</p>
     </section>
     <section class="grid12">
-      <p class="c1-3 label">visualization</p>
-      <p class="c4-9 reveal">a bold three-year rolling average shows each topic's trajectory, while a pale line keeps the annual values. the top words sit under each human-readable label so viewers can see the evidence behind my interpretation. tableau turns raw, fairly inaccessible LDA output into something a nontechnical viewer can explore.</p>
-    </section>
-    <section class="grid12">
-      <p class="c1-3 label">limitations</p>
-      <p class="c4-9 reveal">LDA detects statistical patterns in words; it doesn't understand meaning. labels are my interpretation, 25 topics was a modeling choice, preprocessing shapes what can emerge, and early years (pre-1980) are too sparse for reliable comparison. topic weight is average probability, not a share of dissertations. the results are a starting point for closer reading, not proof of why things changed.</p>
+      <p class="c1-3 label">doubts</p>
+      <p class="c4-9 reveal">the names are my interpretation, and anything before 1980 is too thin to compare. something I would tell to someone who would doubt topic models is to experience using one to get a look at where the reasoning is coming from.</p>
     </section>
 
     <section>
