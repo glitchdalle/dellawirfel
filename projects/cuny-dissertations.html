@@ -97,8 +97,20 @@
       <p class="c4-9 reveal">what surprised me about the data was the artifacts I had to remove, such as lcub or rcub for left curly brackets, right curly brackets. they were prominent in number enough that they could skew the results, and needed to be cleaned.</p>
     </section>
     <section class="grid12">
+      <p class="c1-3 label">method</p>
+      <p class="c4-9 reveal">this was an exploratory method, not a keyword-driven one. I let the model find recurring patterns instead of deciding which words to look for beforehand. then I picked the three topics with the largest increases in average topic weight and the three with the largest decreases, comparing 2000–2009 with 2017–2024 because both have plenty of abstracts, unlike early years with fewer than five dissertations.</p>
+    </section>
+    <section class="grid12">
+      <p class="c1-3 label">reading the model</p>
+      <p class="c4-9 reveal">LDA doesn't force a dissertation into one category. each one gets a probability spread across 25 topics, and adding those weights up by year shows changes you can't see in single documents. so topic weight isn't the share of dissertations about a topic; it's the average probability given to that topic in a year. in the dashboard, the bold line is a three-year rolling average, the pale line keeps the yearly values, and the top words sit under each label so you can see the evidence I used to name it.</p>
+    </section>
+    <section class="grid12">
+      <p class="c1-3 label">limits</p>
+      <p class="c4-9 reveal">LDA doesn't understand meaning, it detects patterns in words. the labels are my interpretation, 25 topics was a modeling choice, and preprocessing shapes what topics can appear. some topics are easier to read than others: protein and gene is coherent, chapter, model and result less so. it also assumes an abstract represents its dissertation, and anything before 1980 is too thin to compare. so this is a starting point for looking closer, not proof of why things changed.</p>
+    </section>
+    <section class="grid12">
       <p class="c1-3 label">doubts</p>
-      <p class="c4-9 reveal">the names are my interpretation, and anything before 1980 is too thin to compare. something I would tell to someone who would doubt topic models is to experience using one to get a look at where the reasoning is coming from.</p>
+      <p class="c4-9 reveal">something I would tell to someone who would doubt topic models is to experience using one to get a look at where the reasoning is coming from.</p>
     </section>
 
     <section>
