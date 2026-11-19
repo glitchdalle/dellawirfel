@@ -17,7 +17,7 @@
   }).catch(() => {});
 
   const STEPS = [
-    { id: "name",    t: "what should we call you?", hint: "this is remi, an app I designed. it works like the real thing: type your name, then tap the arrow or press return." },
+    { id: "name",    t: "what should we call you?", hint: "this is remi, an app I designed. type your name, then tap the arrow or press return." },
     { id: "perm",    t: "access your photos",       hint: "tap “allow access”. next, iOS asks for permission, like it would on your phone." },
     { id: "load",    t: "organizing your photos",   hint: "remi sorts your library into seasons. this takes a few seconds." },
     { id: "home",    t: "your library",             hint: "scroll down through your seasons, then tap fall 2024." },
@@ -172,7 +172,7 @@
         <p class="rp-hint"></p>
         <ol class="rp-steps">${STEPS.map((s, i) => `<li data-j="${i}"><b>${String(i + 1).padStart(2, "0")}</b>${s.t}</li>`).join("")}</ol>
         <div class="rp-ctrl"><button type="button" class="rp-back">&larr; back</button><button type="button" class="rp-restart">restart</button></div>
-        <p class="rp-foot">every screen is rebuilt from my design files, with the motion I planned for each one. type, tap and scroll like a real app. esc closes it.</p>
+        <p class="rp-foot">built from my illustrator screens. type, tap and scroll the way you would on your phone. esc closes it.</p>
       </aside>
       <div class="rp-phone"><div class="rp-viewport"><div class="rp-app">
         <div class="rp-status">${ICONS}</div><div class="rp-island"></div><div class="rp-homebar"></div>
