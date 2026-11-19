@@ -74,7 +74,7 @@
   menu.addEventListener("click", e => { if (e.target.closest("a")) close(); });  // the page wipe takes it from here
 })();
 
-// della wirfel — the doordash tour. anyone who arrives through /doordash gets a small bar on every page for the rest of
+// della wirfel — the application tour. anyone who arrives through /doordash (or another application page) gets a small bar on every page for the rest of
 // the visit: back to the doordash page, how many of its featured projects they've seen (dots), and a link to the next one.
 // the project list is read from the doordash page's own cards. sessionStorage = this browser tab only.
 (function () {
@@ -100,8 +100,12 @@
         .dd-tour i { width: 6px; height: 6px; }
         .dd-tour .long { display: none; }
       }`;
-    if (/\/doordash(\/|\/index\.html)?$/.test(location.pathname)) {
+    // application pages: each one starts its own tour, labelled with the company
+    const APPS = { doordash: "doordash", courted: "courted", nominal: "nominal", ralphlauren: "ralph lauren", palantir: "palantir", databricks: "databricks" };
+    const appMatch = location.pathname.match(/\/(doordash|courted|nominal|ralphlauren|palantir|databricks)(\/|\/index\.html)?$/);
+    if (appMatch) {
       ss.setItem("dd-back", location.href);
+      ss.setItem("dd-label", APPS[appMatch[1]]);
       const cards = [...document.querySelectorAll(".dd-card a")];
       ss.setItem("dd-tour", JSON.stringify(cards.map(a => ({ href: a.href, name: (a.querySelector("h3") || a).textContent.replace("→", "").trim() }))));
       const seen = new Set(JSON.parse(ss.getItem("dd-seen") || "[]"));
@@ -111,6 +115,7 @@
     }
     const back = ss.getItem("dd-back");
     if (!back) return;
+    const label = ss.getItem("dd-label") || "doordash";
     const tour = JSON.parse(ss.getItem("dd-tour") || "[]");
     const seen = new Set(JSON.parse(ss.getItem("dd-seen") || "[]"));
     const here = norm(location.href);
@@ -120,8 +125,8 @@
     document.head.appendChild(css);
     const bar = document.createElement("div");
     bar.className = "dd-tour";
-    bar.innerHTML = `<a href="${back}"><span>&larr; doordash<span class="long">&nbsp;page</span></span></a>` +
-      (tour.length ? `<span class="dd-t-prog" title="projects from the doordash page you've seen">${tour.map(t => `<i class="${seen.has(norm(t.href)) ? "on" : ""}"></i>`).join("")} <span>${done} / ${tour.length}<span class="long">&nbsp;seen</span></span></span>` : "") +
+    bar.innerHTML = `<a href="${back}"><span>&larr; ${label}<span class="long">&nbsp;page</span></span></a>` +
+      (tour.length ? `<span class="dd-t-prog" title="projects from the ${label} page you've seen">${tour.map(t => `<i class="${seen.has(norm(t.href)) ? "on" : ""}"></i>`).join("")} <span>${done} / ${tour.length}<span class="long">&nbsp;seen</span></span></span>` : "") +
       (next ? `<a href="${next.href}"><span>next<span class="long">: ${next.name}</span></span>&rarr;</a>` : (tour.length ? `<span class="dd-t-done">all seen &check;</span>` : ""));
     document.body.appendChild(bar);
   } catch (e) { /* storage blocked: no bar, nothing breaks */ }
