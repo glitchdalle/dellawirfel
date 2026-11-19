@@ -74,23 +74,55 @@
   menu.addEventListener("click", e => { if (e.target.closest("a")) close(); });  // the page wipe takes it from here
 })();
 
-// della wirfel — anyone who arrives through /doordash keeps a way back to it: a small pill follows them through the
-// whole site for the rest of the visit (sessionStorage = this browser tab only; nothing is stored once the tab closes).
+// della wirfel — the doordash tour. anyone who arrives through /doordash gets a small bar on every page for the rest of
+// the visit: back to the doordash page, how many of its featured projects they've seen (dots), and a link to the next one.
+// the project list is read from the doordash page's own cards. sessionStorage = this browser tab only.
 (function () {
   try {
-    if (/\/doordash(\/|\/index\.html)?$/.test(location.pathname)) { sessionStorage.setItem("dd-back", location.href); return; }
-    const back = sessionStorage.getItem("dd-back");
-    if (!back) return;
+    const ss = sessionStorage;
+    const norm = u => new URL(u, location.href).pathname.replace(/\/index\.html$/, "/");
     const css = document.createElement("style");
-    css.textContent = `.dd-back { position: fixed; right: var(--pad, 24px); top: 14px; z-index: 60; display: inline-flex; align-items: center; gap: 8px;
-        padding: 9px 14px 10px; background: var(--text, #111); color: var(--bg, #fff); font-size: 13px; line-height: 1; text-decoration: none;
-        transition: background .3s; }
-      .dd-back:hover { background: var(--accent, #ff3b00); color: #fff; }
-      html.pm-is-open .dd-back { opacity: 0; pointer-events: none; }
-      @media (max-width: 760px) { .dd-back { right: 12px; top: 12px; font-size: 11px; padding: 7px 10px 8px; } }`;
+    css.textContent = `.dd-tour { position: fixed; right: var(--pad, 24px); top: 12px; z-index: 60; display: flex; align-items: stretch;
+        background: var(--text, #111); color: var(--bg, #fff); font-size: 13px; line-height: 1; }
+      .dd-tour > a, .dd-tour > span { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px 10px; color: inherit; text-decoration: none; white-space: nowrap; }
+      .dd-tour .long { display: inline; }
+      .dd-tour a { transition: background .3s; }
+      .dd-tour a:hover { background: var(--accent, #ff3b00); color: #fff; }
+      .dd-tour > .dd-t-prog { border-left: 1px solid rgba(255,255,255,.18); border-right: 1px solid rgba(255,255,255,.18); font-variant-numeric: tabular-nums; }
+      .dd-tour i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.28); }
+      .dd-tour i.on { background: var(--accent, #ff3b00); }
+      .dd-tour .dd-t-done { color: var(--accent, #ff3b00); }
+      .dd-seen { color: var(--accent, #ff3b00); margin: 0 auto 0 12px; }
+      html.pm-is-open .dd-tour { opacity: 0; pointer-events: none; }
+      @media (max-width: 760px) {
+        .dd-tour { right: 10px; top: 10px; font-size: 11px; }
+        .dd-tour > a, .dd-tour > span { padding: 7px 8px 8px; gap: 5px; }
+        .dd-tour i { width: 6px; height: 6px; }
+        .dd-tour .long { display: none; }
+      }`;
+    if (/\/doordash(\/|\/index\.html)?$/.test(location.pathname)) {
+      ss.setItem("dd-back", location.href);
+      const cards = [...document.querySelectorAll(".dd-card a")];
+      ss.setItem("dd-tour", JSON.stringify(cards.map(a => ({ href: a.href, name: (a.querySelector("h3") || a).textContent.replace("→", "").trim() }))));
+      const seen = new Set(JSON.parse(ss.getItem("dd-seen") || "[]"));
+      document.head.appendChild(css);
+      cards.forEach(a => { if (seen.has(norm(a.href))) { const n = a.querySelector(".dd-meta .n"); if (n) n.insertAdjacentHTML("afterend", '<span class="dd-seen">seen &check;</span>'); } });
+      return;
+    }
+    const back = ss.getItem("dd-back");
+    if (!back) return;
+    const tour = JSON.parse(ss.getItem("dd-tour") || "[]");
+    const seen = new Set(JSON.parse(ss.getItem("dd-seen") || "[]"));
+    const here = norm(location.href);
+    if (tour.some(t => norm(t.href) === here)) { seen.add(here); ss.setItem("dd-seen", JSON.stringify([...seen])); }
+    const done = tour.filter(t => seen.has(norm(t.href))).length;
+    const next = tour.find(t => !seen.has(norm(t.href)));
     document.head.appendChild(css);
-    const a = document.createElement("a");
-    a.className = "dd-back"; a.href = back; a.innerHTML = "&larr; back to the doordash page";
-    document.body.appendChild(a);
-  } catch (e) { /* storage blocked: no pill, nothing breaks */ }
+    const bar = document.createElement("div");
+    bar.className = "dd-tour";
+    bar.innerHTML = `<a href="${back}"><span>&larr; doordash<span class="long">&nbsp;page</span></span></a>` +
+      (tour.length ? `<span class="dd-t-prog" title="projects from the doordash page you've seen">${tour.map(t => `<i class="${seen.has(norm(t.href)) ? "on" : ""}"></i>`).join("")} <span>${done} / ${tour.length}<span class="long">&nbsp;seen</span></span></span>` : "") +
+      (next ? `<a href="${next.href}"><span>next<span class="long">: ${next.name}</span></span>&rarr;</a>` : (tour.length ? `<span class="dd-t-done">all seen &check;</span>` : ""));
+    document.body.appendChild(bar);
+  } catch (e) { /* storage blocked: no bar, nothing breaks */ }
 })();
