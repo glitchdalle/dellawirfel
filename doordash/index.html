@@ -31,7 +31,14 @@
     .dd-cta:hover { background: var(--accent); color: #fff; }
     .dd-cta .arr { transition: transform .35s cubic-bezier(.2,.7,.2,1); }
     .dd-cta:hover .arr { transform: translateX(10px); }
+    .dd-case-h { font-size: clamp(34px, 5vw, 80px); font-weight: 300; letter-spacing: -0.05em; line-height: .95; padding: 0 var(--pad); margin: 8px 0 40px; }
+    .dd-iter { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; padding: 0 var(--pad); margin-top: 48px; }
+    .dd-iter li { list-style: none; border-top: 1px solid var(--text); padding-top: 14px; }
+    .dd-iter .n { display: block; font-size: 13px; color: var(--accent); margin-bottom: 14px; }
+    .dd-iter b { display: block; font-size: clamp(20px, 1.7vw, 26px); font-weight: 400; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 10px; }
+    .dd-iter p { font-size: 14px; line-height: 1.45; color: var(--muted); }
     @media (max-width: 760px) {
+      .dd-iter { grid-template-columns: 1fr; gap: 28px; }
       .dd-cta { padding: 28px 24px; margin-top: 56px; }
       .dd-cards { grid-template-columns: 1fr; gap: 48px; }
       .dd-steps { grid-template-columns: 1fr 1fr; gap: 28px 16px; }
@@ -54,11 +61,11 @@
     <h1 class="page-title reveal">hi, doordash.</h1>
     <div class="grid12"><p class="c1-12 dd-sub reveal">della wirfel, designer who works with data. new york.</p></div>
 
-    <div class="marquee"><div class="marquee-track"><span>product design</span><span class='dot'>●</span><span>mobile UI</span><span class='dot'>●</span><span>prototyping</span><span class='dot'>●</span><span>data visualization</span><span class='dot'>●</span><span>brand</span><span class='dot'>●</span><span>motion</span><span class='dot'>●</span><span>product design</span><span class='dot'>●</span><span>mobile UI</span><span class='dot'>●</span><span>prototyping</span><span class='dot'>●</span><span>data visualization</span><span class='dot'>●</span><span>brand</span><span class='dot'>●</span><span>motion</span><span class='dot'>●</span></div></div>
+    <div class="marquee"><div class="marquee-track"><span>product design</span><span class='dot'>●</span><span>AI prototyping</span><span class='dot'>●</span><span>mobile UI</span><span class='dot'>●</span><span>data visualization</span><span class='dot'>●</span><span>brand</span><span class='dot'>●</span><span>motion</span><span class='dot'>●</span><span>product design</span><span class='dot'>●</span><span>AI prototyping</span><span class='dot'>●</span><span>mobile UI</span><span class='dot'>●</span><span>data visualization</span><span class='dot'>●</span><span>brand</span><span class='dot'>●</span><span>motion</span><span class='dot'>●</span></div></div>
 
     <section class="grid12">
       <p class="c1-3 label">hello</p>
-      <p class="c4-12 big reveal">I use code to make things tell a story online. I trained in graphic design at FIT, including web design and development, and I'm about to finish my M.S. in data analysis &amp; visualization. what I'm proudest of: knowing that any software I want to learn, or any project I want to build, is possible for me.</p>
+      <p class="c4-12 big reveal">I use code to make things tell a story online. I trained in graphic design at FIT, including web design and development, and I'm about to finish my M.S. in data analysis &amp; visualization. that training came hands-on, before AI was everywhere, so now it lets me use AI as a tool and keep learning its best methods. what I'm proudest of: knowing that any software I want to learn, or any project I want to build, is possible for me.</p>
     </section>
 
     <section class="grid12">
@@ -76,14 +83,31 @@
     </section>
 
     <section>
+      <div class="grid12"><p class="c1-3 label">case study: AI in my process</p></div>
+      <h2 class="dd-case-h reveal">this portfolio, prototyped with claude code.</h2>
+      <div class="grid12"><div class="c4-9">
+        <p class="reveal">I designed and art-directed this site and built it with claude code. I'd sketch or describe an idea, have a working version on screen in minutes, then critique it on my laptop and my phone and push it further. it let me explore directions I couldn't have prototyped this fast alone. here's how one piece, the NYC 311 map, evolved.</p>
+      </div></div>
+      <ol class="dd-iter reveal">
+        <li><span class="n">01</span><b>a spike per zip code</b><p>the first prototype: the city as a skyline of complaints, morphing through four complaint types as you scroll.</p></li>
+        <li><span class="n">02</span><b>spikes become lines</b><p>I asked for the solid, round-capped lines from my dissertation timeline, in the 311 colors.</p></li>
+        <li><span class="n">03</span><b>made for a phone</b><p>on my phone the map felt small and far from the text, so it moved up and got pinch-to-zoom and + / &minus; buttons.</p></li>
+        <li><span class="n">04</span><b>labels that matter</b><p>the three tallest lines now show their zip code for every complaint type, so the story reads at a glance.</p></li>
+        <li><span class="n">05</span><b>an honest scale</b><p>the all-four view first gave each type its own scale, making 47 mold complaints look as tall as 37,141 heat complaints. I pushed back, and now one shared scale keeps every line comparable.</p></li>
+      </ol>
+      <div class="grid12" style="margin-top:48px"><p class="c1-3 label">what stays mine</p>
+      <p class="c4-9 reveal">every number comes straight from my tableau workbooks, never computed by the AI. I make the design calls: the swiss, lowercase style, what gets cut, what feels chic. I test everything on my phone. and the words are mine: I even ran the copy through AI detectors and rewrote it in my own voice.</p></div>
+    </section>
+
+    <section>
       <div class="grid12" style="margin-bottom:28px"><p class="c1-3 label">work to start with</p><p class="c4-12"><a href="../projects.html">all projects &rarr;</a></p></div>
       <div class="dd-cards">
       <div class="dd-card reveal">
         <a href="../projects/remi.html">
           <div class="dd-img"><img width="800" height="560" src="../remi-thumb.jpg" alt="remi" loading="lazy" style="object-position:center"></div>
-          <div class="dd-meta"><span class="n">01</span><span>app concept &amp; UI</span></div>
+          <div class="dd-meta"><span class="n">01</span><span>AI app concept &amp; UI</span></div>
           <h3>remi &rarr;</h3>
-          <p>a calm, low-stress app for an everyday chore. I designed it for people who are already overwhelmed, sorted the library by season and kept text minimal so the home screen never distracts.</p>
+          <p>an AI-powered experience: an app that learns how you favorite your photos, then lets you review before anything is deleted. calm and low-stress, for people who are already overwhelmed.</p>
         </a>
       </div>
       <div class="dd-card reveal">
@@ -136,8 +160,8 @@
     <section class="grid12">
       <p class="c1-3 label">what I bring</p>
       <div class="c4-9">
-        <p class="reveal">formal training in two fields. at FIT: product design, UI/UX design, motion graphics, adobe creative cloud, touchdesigner and telling a story throughout. in my M.S.: code, observable framework, data bias, data governance, gamification &amp; ethics, the quantified self, and studying weekly under a data visualization designer at netflix.</p>
-        <p class="reveal">years of brutal art critiques taught me how to take advice, trust me. have a german professor and you will learn how to grow (we loved her). the skills baked in underneath shape how I use any tool, and how I think about the people on the other side of the screen.</p>
+        <p class="reveal">formal training in two fields. at FIT: product design, UI/UX design, motion graphics, adobe creative cloud, touchdesigner and telling a story throughout. in my M.S.: code, cursor and other AI methodologies, observable framework, data bias, data governance, gamification &amp; ethics, the quantified self, and studying weekly under a data visualization designer at netflix.</p>
+        <p class="reveal">years of brutal art critiques taught me how to take advice, trust me. have a german professor and you will learn how to grow (we loved her). plenty of designers have started creating with AI. the skills baked in underneath are what shape how I use these tools, how I understand the way a human audience receives a message, and my thrill to create.</p>
       </div>
     </section>
 
