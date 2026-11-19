@@ -24,7 +24,14 @@
     .dd-steps li { list-style: none; border-top: 1px solid var(--text); padding-top: 14px; }
     .dd-steps .n { display: block; font-size: 13px; color: var(--accent); margin-bottom: 18px; }
     .dd-steps b { display: block; font-size: clamp(26px, 2.8vw, 44px); font-weight: 300; letter-spacing: -0.04em; line-height: 1; }
+    .dd-cta { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 80px var(--pad) 0; padding: 40px 44px;
+      background: var(--text); color: var(--bg); font-size: clamp(28px, 4.2vw, 68px); font-weight: 300; letter-spacing: -0.045em; line-height: 1;
+      transition: background .35s; }
+    .dd-cta:hover { background: var(--accent); color: #fff; }
+    .dd-cta .arr { transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+    .dd-cta:hover .arr { transform: translateX(10px); }
     @media (max-width: 760px) {
+      .dd-cta { padding: 28px 24px; margin-top: 56px; }
       .dd-cards { grid-template-columns: 1fr; gap: 48px; }
       .dd-steps { grid-template-columns: 1fr 1fr; gap: 28px 16px; }
     }
@@ -94,6 +101,7 @@
         </a>
       </div>
       </div>
+      <a class="dd-cta reveal" href="../index.html"><span>explore my entire portfolio</span><span class="arr">&rarr;</span></a>
     </section>
 
     <section>
@@ -111,8 +119,8 @@
       <p class="c1-3 label">more</p>
       <div class="c4-12 file-links reveal"><a href="../Wirfel_Della.masterResume.ForWeb.pdf" target="_blank" rel="noopener">résumé <span>pdf &nearr;</span></a><a href="mailto:dellawirfel@gmail.com">email <span>dellawirfel@gmail.com</span></a><a href="../index.html">full portfolio <span>&rarr;</span></a></div>
     </section>
-    <section>
-      <a class="next" href="../index.html"><span class="label">back to the full portfolio &rarr;</span>della wirfel</a>
+    <section style="padding-top:0">
+      <a class="dd-cta reveal" href="../index.html"><span>explore my entire portfolio</span><span class="arr">&rarr;</span></a>
     </section>
   </main>
 
