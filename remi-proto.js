@@ -8,7 +8,13 @@
   const ROOT = new URL(".", document.currentScript.src).href;
   const A = ROOT + "images/remi-proto/";
   // the launcher only appears once the prototype's images are on the site
-  fetch(A + "name-bg.jpg", { method: "HEAD" }).then(r => { if (r.ok) launch.hidden = false; }).catch(() => {});
+  // a link to remi.html#prototype (from the doordash page) opens the prototype straight away
+  const autoOpen = location.hash === "#prototype";
+  fetch(A + "name-bg.jpg", { method: "HEAD" }).then(r => {
+    if (!r.ok) return;
+    launch.hidden = false;
+    if (autoOpen) { launch.scrollIntoView({ block: "center" }); setTimeout(open, 700); }
+  }).catch(() => {});
 
   const STEPS = [
     { id: "name",    t: "what should we call you?", hint: "this is remi, an app I designed. it works like the real thing: type your name, then tap the arrow or press return." },
@@ -426,5 +432,5 @@
     if (!fromPop && location.hash === "#prototype") { try { history.back(); } catch (e) {} }
   }
   launch.addEventListener("click", open);
-  if (location.hash === "#prototype") { try { history.replaceState(null, "", location.pathname); } catch (e) {} }
+  if (autoOpen) { try { history.replaceState(null, "", location.pathname); } catch (e) {} }
 })();
