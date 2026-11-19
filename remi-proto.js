@@ -3,15 +3,18 @@
 // positions are in the design's 600 × 1299 artboard pixels, and the app is scaled to fit the window.
 // motion follows della's motion plan: large photographs move, small thumbnails stay still unless tapped.
 (function () {
-  const launch = document.querySelector(".rp-launch");
-  if (!launch) return;
+  // opens from the big button on the remi page, or from anything marked data-rp-launch (the remi card on application pages)
+  const launchBtn = document.querySelector(".rp-launch");
+  const triggers = [...document.querySelectorAll("[data-rp-launch]")];
+  if (!launchBtn && !triggers.length) return;
+  let launch = launchBtn || triggers[0];
   const ROOT = new URL(".", document.currentScript.src).href;
   const A = ROOT + "images/remi-proto/";
   // the launcher only appears once the prototype's images are on the site
   // a link to remi.html#prototype (from the doordash page) opens the prototype straight away
-  const autoOpen = location.hash === "#prototype";
+  const autoOpen = !!launchBtn && location.hash === "#prototype";
   fetch(A + "name-bg.jpg", { method: "HEAD" }).then(r => {
-    if (!r.ok) return;
+    if (!r.ok || !launchBtn) return;
     launch.hidden = false;
     if (autoOpen) { launch.scrollIntoView({ block: "center" }); setTimeout(open, 700); }
   }).catch(() => {});
@@ -354,7 +357,7 @@
     inp.addEventListener("keydown", e => {
       e.stopPropagation();
       if (e.key === "Enter") submitName();
-      if (e.key === "Escape") inp.blur();
+      if (e.key === "Escape") { inp.blur(); close(); }
     });
     send.addEventListener("click", submitName);
     // 02 permission
@@ -405,7 +408,8 @@
 
   // ---------- open / close: the phone grows out of the button and settles in the middle of the screen ----------
   function fromButton() {
-    const r = launch.getBoundingClientRect(), { x, y, W, H } = geo;
+    let r = launch.getBoundingClientRect(); const { x, y, W, H } = geo;
+    if (r.bottom < 0 || r.top > innerHeight || !r.width) r = { left: innerWidth / 2 - 60, top: innerHeight / 2 - 60, width: 120, height: 120 };
     const sc = Math.max(.12, Math.min(r.height / H, .3));
     return `translate(${(r.left + r.width / 2 - (x + W / 2)).toFixed(0)}px, ${(r.top + r.height / 2 - (y + H / 2)).toFixed(0)}px) scale(${sc.toFixed(3)})`;
   }
@@ -431,6 +435,12 @@
     setTimeout(() => { rp.style.display = "none"; document.documentElement.style.overflow = ""; }, 620);
     if (!fromPop && location.hash === "#prototype") { try { history.back(); } catch (e) {} }
   }
-  launch.addEventListener("click", open);
+  if (launchBtn) launchBtn.addEventListener("click", () => { launch = launchBtn; open(); });
+  // capture phase, so the site's page-wipe link handler never sees these clicks; cmd-click still opens the remi page in a new tab
+  if (triggers.length) document.addEventListener("click", e => {
+    const t = e.target.closest("[data-rp-launch]");
+    if (!t || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault(); e.stopImmediatePropagation(); launch = t; open();
+  }, true);
   if (autoOpen) { try { history.replaceState(null, "", location.pathname); } catch (e) {} }
 })();
