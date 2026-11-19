@@ -11,13 +11,13 @@
   fetch(A + "name-bg.jpg", { method: "HEAD" }).then(r => { if (r.ok) launch.hidden = false; }).catch(() => {});
 
   const STEPS = [
-    { id: "name",    t: "what should we call you?", hint: "this is remi, an app I designed. it works like the real thing: type your name, then press return." },
+    { id: "name",    t: "what should we call you?", hint: "this is remi, an app I designed. it works like the real thing: type your name, then tap the arrow or press return." },
     { id: "perm",    t: "access your photos",       hint: "tap “allow access”. next, iOS asks for permission, like it would on your phone." },
     { id: "load",    t: "organizing your photos",   hint: "remi sorts your library into seasons. this takes a few seconds." },
-    { id: "home",    t: "your library",             hint: "scroll through your seasons, then tap fall 2024." },
+    { id: "home",    t: "your library",             hint: "scroll down through your seasons, then tap fall 2024." },
     { id: "season",  t: "fall 2024",                hint: "tap “clean this for me”." },
     { id: "clean",   t: "cleaning",                 hint: "remi fades what it suggests removing. tap a faded photo to keep it, or tap anywhere else to review." },
-    { id: "review",  t: "review suggestions",       hint: "tap faded photos to keep them, or tap any photo to remove it. scroll down and tap continue." },
+    { id: "review",  t: "review suggestions",       hint: "tap faded photos to keep them, or tap any photo to remove it. then tap continue." },
     { id: "confirm", t: "ready to clean up",        hint: "tap “clean my library”. anything removed goes to recently deleted first." },
     { id: "done",    t: "that’s better.",      hint: "tap continue to go back to your lighter library." },
   ];
@@ -44,12 +44,21 @@
     ["road", "roots", "rock", "palmdark*", "rose"],
   ];
   const REV_ROWS = [569, 697, 825, 952, 1081, 1209];
+  // more of fall 2024 below the first two rows of the season screen
+  const MORE = [
+    ["roots", "rock", "dress", "roseclose", "fern"],
+    ["sign", "palmdark", "ground", "road", "grass"],
+    ["girl", "flowers", "rocksand", "rose", "laptop"],
+    ["bowl", "fern", "room", "roots", "palm"],
+    ["roseclose", "ground", "rock", "sign", "dress"],
+    ["grass", "palmdark", "road", "girl", "flowers"],
+  ];
 
   function screensHTML() {
     return `
     <section class="rp-s" data-i="0">
       ${bg("name-bg.jpg", "rp-amb-drift")}
-      <div class="rp-abs rp-name-in rp-fade"><input type="text" maxlength="18" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="what should we call you?" enterkeyhint="go" aria-label="your name"></div>
+      <div class="rp-abs rp-name-in rp-fade"><input type="text" maxlength="18" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="what should we call you?" enterkeyhint="go" aria-label="your name"><div class="rp-send" role="button" aria-label="continue">&rarr;</div></div>
       <div class="rp-abs rp-greet rp-fade rp-d2">nice to meet you, <u class="rp-nm">_____</u>.</div>
     </section>
 
@@ -79,9 +88,13 @@
         <div class="rp-abs rp-hello b rp-fade">welcome, <span class="rp-nm2">claire</span></div>
         <div class="rp-abs rp-hello2 i rp-fade rp-d1">lets de-clutter</div>
         <div class="rp-abs rp-count rp-fade rp-d1"><span class="rp-items">67,209</span> items</div>
-        <div class="rp-card" data-card="spring" style="top:380px"><div class="rp-par">${bg("spring.jpg", "rp-kb-a")}</div><div class="rp-lab">spring 2024</div><div class="rp-plus">+</div></div>
-        <div class="rp-card" data-card="winter" style="top:787px"><div class="rp-par">${bg("winter.jpg", "rp-kb-b")}</div><div class="rp-lab">winter 2024</div><div class="rp-plus">+</div></div>
+        <div class="rp-card" data-card="spring 2024" style="top:380px"><div class="rp-par">${bg("spring.jpg", "rp-kb-a")}</div><div class="rp-lab">spring 2024</div><div class="rp-plus">+</div></div>
+        <div class="rp-card" data-card="winter 2024" style="top:787px"><div class="rp-par">${bg("winter.jpg", "rp-kb-b")}</div><div class="rp-lab">winter 2024</div><div class="rp-plus">+</div></div>
         <div class="rp-card" data-card="fall" style="top:1195px"><div class="rp-par">${bg("fall-card.jpg", "rp-kb-c")}</div><div class="rp-lab">fall 2024</div><div class="rp-plus">+</div></div>
+        <div class="rp-card" data-card="summer 2023" style="top:1603px"><div class="rp-par">${bg("perm-bg.jpg", "rp-kb-b", "background-position:50% 12%")}</div><div class="rp-lab">summer 2023</div><div class="rp-plus">+</div></div>
+        <div class="rp-card" data-card="spring 2023" style="top:2011px"><div class="rp-par">${bg("load-bg.jpg", "rp-kb-a", "background-position:50% 30%")}</div><div class="rp-lab">spring 2023</div><div class="rp-plus">+</div></div>
+        <div class="rp-card" data-card="winter 2023" style="top:2419px"><div class="rp-par">${bg("confirm-bg.jpg", "rp-kb-c", "background-position:50% 78%")}</div><div class="rp-lab">winter 2023</div><div class="rp-plus">+</div></div>
+        <div class="rp-abs rp-more i">that’s every season. fall 2024 is ready to clean.</div>
       </div></div>
     </section>
 
@@ -94,6 +107,7 @@
         <div class="rp-abs rp-cleanme i rp-tap rp-fade rp-d3" role="button">clean this for me</div>
         ${["road", "grass", "rocksand", "girl", "laptop"].map((n, c) => th(n, COLS[c] + 2, 968)).join("")}
         ${["flowers", "room", "rose", "palm", "bowl"].map((n, c) => th(n, COLS[c] + 2, 1097)).join("")}
+        ${MORE.map((row, r) => row.map((n, c) => th(n, COLS[c] + 2, 1226 + r * 129)).join("")).join("")}
       </div></div>
     </section>
 
@@ -113,6 +127,7 @@
         <div class="rp-abs rp-rev-b b rp-fade rp-d1">review suggestions</div>
         <div class="rp-abs rp-rev-n rp-fade rp-d1"><span class="rp-rn">1,849</span> items to remove</div>
         <div class="rp-abs rp-rev-h i rp-fade rp-d2">tap faded images to keep what you want</div>
+        <div class="rp-abs rp-btn rp-cont rp-cont-top rp-tap rp-fade rp-d2 rp-go-confirm" role="button">continue</div>
         ${REVIEW.map((row, r) => row.map((n, c) => th(n.replace("*", ""), COLS[c], REV_ROWS[r], n.endsWith("*") ? "s" : "")).join("")).join("")}
         <div class="rp-abs rp-btn rp-cont rp-tap rp-go-confirm" role="button" style="top:1370px">continue</div>
       </div></div>
@@ -215,7 +230,7 @@
   const back = () => { if (hist.length) go(hist.pop(), false); };
   function restart() {
     hist = []; st.name = "claire"; st.removed = 1849; st.cleaned = false;
-    const inp = app.querySelector(".rp-name-in input"); inp.value = ""; app.querySelector(".rp-nm").textContent = "_____";
+    const inp = app.querySelector(".rp-name-in input"); inp.value = ""; app.querySelector(".rp-nm").textContent = "_____"; app.querySelector(".rp-send").classList.remove("ready");
     const cur = idx; if (cur >= 0) screens[cur].classList.remove("on", "shown"); idx = -1; go(0, false);
   }
 
@@ -269,15 +284,15 @@
     const ths = [...scr.querySelectorAll(".rp-th")], cn = scr.querySelector(".rp-cn");
     ths.forEach(t => t.classList.remove("in", "sug")); cn.textContent = "0";
     scr._ready = false; scr._touched = false;
-    ths.forEach((t, k) => later(() => t.classList.add("in"), 380 + k * 70));
+    ths.forEach((t, k) => later(() => t.classList.add("in"), 250 + k * 50));
     later(() => {
       ths.filter(t => t.classList.contains("s")).forEach(t => t.classList.add("sug"));
       const t0 = performance.now(), target = st.removed = 1849;
-      (function tick(now) { const p = Math.min(1, (now - t0) / 1200), e = 1 - Math.pow(1 - p, 3);
+      (function tick(now) { const p = Math.min(1, (now - t0) / 900), e = 1 - Math.pow(1 - p, 3);
         cn.textContent = fmt(Math.round(target * e)); if (p < 1 && idx === 5) requestAnimationFrame(tick); })(t0);
-    }, 1350);
-    later(() => { scr._ready = true; }, 1700);
-    later(() => { if (!scr._touched && idx === 5) go(6); }, 7000);
+    }, 900);
+    later(() => { scr._ready = true; }, 1300);
+    later(() => { if (!scr._touched && idx === 5) go(6); }, 3400);
   }
 
   function openAlert() { app.querySelector(".rp-alert-dim").classList.add("on"); app.querySelector(".rp-alert").classList.add("on"); }
@@ -292,16 +307,19 @@
 
     // 01 name
     const inp = app.querySelector(".rp-name-in input"), nm = app.querySelector(".rp-nm");
-    inp.addEventListener("input", () => { const v = inp.value.trim().toLowerCase(); nm.textContent = v || "_____"; });
+    const send = app.querySelector(".rp-send");
+    const submitName = () => {
+      const v = inp.value.trim().toLowerCase();
+      if (!v) { hint("type a name first, then tap the arrow.", true); inp.focus(); return; }
+      st.name = v; inp.blur(); later(() => go(1), 350);
+    };
+    inp.addEventListener("input", () => { const v = inp.value.trim().toLowerCase(); nm.textContent = v || "_____"; send.classList.toggle("ready", !!v); });
     inp.addEventListener("keydown", e => {
       e.stopPropagation();
-      if (e.key === "Enter") {
-        const v = inp.value.trim().toLowerCase();
-        if (!v) { hint("type a name first, then press return.", true); return; }
-        st.name = v; inp.blur(); later(() => go(1), 350);
-      }
+      if (e.key === "Enter") submitName();
       if (e.key === "Escape") inp.blur();
     });
+    send.addEventListener("click", submitName);
     // 02 permission
     const allow = app.querySelector(".rp-allow");
     allow.addEventListener("click", () => setTimeout(openAlert, 180));
@@ -317,8 +335,8 @@
     app.querySelectorAll(".rp-card").forEach(c => c.addEventListener("click", () => {
       if (c.dataset.card === "fall") { go(4); return; }
       c.classList.remove("nudge"); void c.offsetWidth; c.classList.add("nudge");
-      hint(`${c.dataset.card} 2024 is just for show here. fall 2024 is the season this prototype opens.`, true);
-      hsc.scrollTo({ top: 1100, behavior: "smooth" });
+      hint(`${c.dataset.card} is just for show here. fall 2024 is the season this prototype opens.`, true);
+      hsc.scrollTo({ top: 1195 - 300, behavior: "smooth" });
     }));
     // 05 season
     const ssc = app.querySelector(".rp-sec-sc"), hero = app.querySelector(".rp-hero .rp-par");
@@ -336,7 +354,7 @@
     s7.querySelectorAll(".rp-th").forEach(t => t.addEventListener("click", () => {
       const was = t.classList.toggle("sug"); st.removed += was ? 1 : -1; rn.textContent = fmt(st.removed);
     }));
-    s7.querySelector(".rp-go-confirm").addEventListener("click", () => go(7));
+    s7.querySelectorAll(".rp-go-confirm").forEach(b => b.addEventListener("click", () => go(7)));
     // 08 confirm
     app.querySelector(".rp-clean").addEventListener("click", () => go(8));
     app.querySelector(".rp-notnow2").addEventListener("click", () => go(6));

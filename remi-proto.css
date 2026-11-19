@@ -67,9 +67,13 @@
 
 /* 01 name */
 .rp-name-in { left: 97px; top: 808px; width: 428px; height: 52px; border-radius: 12px; background: rgba(255,255,255,.17); display: flex; align-items: center; }
-.rp-name-in input { width: 100%; height: 100%; border: 0; outline: 0; background: none; padding: 0 16px; color: #fff; font: italic 300 22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+.rp-name-in input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: none; padding: 0 16px; color: #fff; font: italic 300 22px "Helvetica Neue", Helvetica, Arial, sans-serif;
   caret-color: #fff; user-select: text; -webkit-user-select: text; }
 .rp-name-in input::placeholder { color: rgba(255,255,255,.78); }
+.rp-send { flex: none; width: 40px; height: 40px; margin-right: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.22); color: rgba(255,255,255,.7); font-size: 22px; cursor: pointer; transition: background .3s, color .3s, transform .15s; }
+.rp-send.ready { background: #f3e9de; color: #2a1f1a; }
+.rp-send:active { transform: scale(.92); }
 .rp-greet { left: 0; right: 0; top: 905px; text-align: center; color: #fff; font-weight: 400; }
 .rp-greet u { text-decoration: none; }
 
@@ -94,7 +98,8 @@
 .rp-rect { position: absolute; transition: left 2.4s cubic-bezier(.45,.05,.25,1), top 2.4s cubic-bezier(.45,.05,.25,1), width 2.4s, height 2.4s, opacity 1.4s ease, background-color 2s; }
 
 /* 04 home */
-.rp-home-in { position: relative; height: 1640px; }
+.rp-home-in { position: relative; height: 2940px; }
+.rp-more { left: 0; right: 0; top: 2830px; text-align: center; color: #9b958f; font-size: 21px; }
 .rp-hello { left: 30px; top: 188px; } .rp-hello2 { left: 30px; top: 215px; font-size: 23px; }
 .rp-count { right: 37px; top: 215px; color: #9b958f; font-size: 23px; font-weight: 400; }
 .rp-card { position: absolute; left: 0; width: 600px; height: 368px; overflow: hidden; cursor: pointer; }
@@ -106,7 +111,7 @@
 @keyframes rpNudge { 0%,100% { transform: none; } 30% { transform: translateX(-6px); } 65% { transform: translateX(5px); } }
 
 /* 05 section */
-.rp-sec-in { position: relative; height: 1340px; }
+.rp-sec-in { position: relative; height: 2040px; }
 .rp-hero { position: absolute; left: 0; top: 0; width: 600px; height: 838px; overflow: hidden; }
 .rp-hero .rp-par { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
 .rp-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 220px; background: linear-gradient(transparent, rgba(10,10,12,.35)); }
@@ -132,6 +137,7 @@
 .rp-s7 .rp-th.sug { transform: scale(.84); opacity: .34; }
 .rp-s7 .rp-th:active { transform: scale(.93); }
 .rp-s7 .rp-th.sug:active { transform: scale(.8); }
+.rp-cont-top { left: auto !important; right: 30px; top: 196px; width: 150px !important; height: 44px !important; font-size: 21px; }
 .rp-cont { left: 193px; width: 215px; height: 47px; border: 1.5px solid #2b2b2b; color: #1a1a1a; }
 .rp-rev-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 190px; background: linear-gradient(rgba(243,233,222,0), #f3e9de 80%); pointer-events: none; z-index: 3; }
 
