@@ -73,3 +73,24 @@
   addEventListener("keydown", e => { if (e.key === "Escape") close(); });
   menu.addEventListener("click", e => { if (e.target.closest("a")) close(); });  // the page wipe takes it from here
 })();
+
+// della wirfel — anyone who arrives through /doordash keeps a way back to it: a small pill follows them through the
+// whole site for the rest of the visit (sessionStorage = this browser tab only; nothing is stored once the tab closes).
+(function () {
+  try {
+    if (/\/doordash(\/|\/index\.html)?$/.test(location.pathname)) { sessionStorage.setItem("dd-back", location.href); return; }
+    const back = sessionStorage.getItem("dd-back");
+    if (!back) return;
+    const css = document.createElement("style");
+    css.textContent = `.dd-back { position: fixed; right: var(--pad, 24px); top: 14px; z-index: 60; display: inline-flex; align-items: center; gap: 8px;
+        padding: 9px 14px 10px; background: var(--text, #111); color: var(--bg, #fff); font-size: 13px; line-height: 1; text-decoration: none;
+        transition: background .3s; }
+      .dd-back:hover { background: var(--accent, #ff3b00); color: #fff; }
+      html.pm-is-open .dd-back { opacity: 0; pointer-events: none; }
+      @media (max-width: 760px) { .dd-back { right: 12px; top: 12px; font-size: 11px; padding: 7px 10px 8px; } }`;
+    document.head.appendChild(css);
+    const a = document.createElement("a");
+    a.className = "dd-back"; a.href = back; a.innerHTML = "&larr; back to the doordash page";
+    document.body.appendChild(a);
+  } catch (e) { /* storage blocked: no pill, nothing breaks */ }
+})();
