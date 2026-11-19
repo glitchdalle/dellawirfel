@@ -100,7 +100,7 @@
 
     <section class="rp-s" data-i="4">
       <div class="rp-scroll rp-sec-sc"><div class="rp-sec-in">
-        <div class="rp-hero"><div class="rp-par">${bg("fall-hero.jpg", "rp-kb-a", "animation-duration:18s")}</div></div>
+        <div class="rp-hero"><div class="rp-par">${bg("fall-hero.jpg", "rp-kb-a", "animation-duration:20s")}</div></div>
         <div class="rp-abs rp-sec-t b rp-fade rp-d1">fall 2024</div>
         <div class="rp-abs rp-sec-m rp-fade rp-d2">5,203 images<br>421 videos</div>
         <div class="rp-panel"></div>
@@ -134,8 +134,8 @@
       <div class="rp-rev-fade"></div>
     </section>
 
-    <section class="rp-s" data-i="7">
-      ${bg("confirm-bg.jpg", "rp-amb-drift", "animation-duration:15s")}
+    <section class="rp-s rp-s8" data-i="7">
+      ${bg("confirm-bg.jpg", "rp-am-confirm")}
       <div class="rp-abs rp-conf-t b rp-fade">ready to clean up, <span class="rp-nm3">claire</span>?</div>
       <div class="rp-abs rp-btn rp-clean b rp-tap rp-fade rp-d2" role="button">clean my library</div>
       <div class="rp-abs rp-btn rp-notnow2 l rp-tap rp-fade rp-d3" role="button">not now</div>
@@ -144,6 +144,7 @@
 
     <section class="rp-s rp-s9" data-i="8">
       <div class="rp-road">${bg("road-bg.jpg")}</div>
+      <div class="rp-veil"></div>
       <div class="rp-abs rp-better rp-fade">that’s better.</div>
       <div class="rp-abs rp-btn rp-cont rp-tap rp-fade rp-go-home" role="button">continue</div>
     </section>`;
@@ -253,7 +254,8 @@
       scr.querySelectorAll(".rp-th").forEach(t => t.classList.toggle("sug", t.classList.contains("s")));
       app.querySelector(".rp-rn").textContent = fmt(st.removed);
     }
-    if (id === "confirm") app.querySelector(".rp-nm3").textContent = st.name;
+    if (id === "confirm") { app.querySelector(".rp-nm3").textContent = st.name; scr.classList.remove("leaving"); }
+    if (id === "done" && !scr._sig) { const road = scr.querySelector(".rp-road"), veil = scr.querySelector(".rp-veil"); road.style.cssText = ""; veil.style.cssText = ""; }
   }
 
   function runLoading(scr) {
@@ -295,11 +297,40 @@
     later(() => { if (!scr._touched && idx === 5) go(6); }, 3400);
   }
 
+  // signature motion: the snowy confirm thaws into the autumn road, which then settles to the bottom of the success screen
+  let sigBusy = false;
+  function snowToAutumn() {
+    if (sigBusy) return; sigBusy = true;
+    const conf = screens[7], done = screens[8], road = done.querySelector(".rp-road"), veil = done.querySelector(".rp-veil");
+    conf.classList.add("leaving");                                   // headline + buttons lift away (350ms)
+    setTimeout(() => {
+      clearTimers(); hist.push(7); idx = 8; done._sig = true;
+      road.style.transition = "none"; road.style.height = "1299px"; road.style.opacity = "0";
+      veil.style.transition = "none"; veil.style.opacity = "0";
+      done.classList.add("on");                                        // success sits above confirm, which stays put underneath
+      app.classList.add("light");
+      rp.querySelector(".rp-sn").textContent = "09 / 09"; rp.querySelector(".rp-st").textContent = STEPS[8].t; hint(STEPS[8].hint);
+      rp.querySelectorAll(".rp-steps li").forEach((li, j) => li.classList.toggle("on", j === 8));
+      void road.offsetWidth;
+      road.style.transition = "opacity .8s ease"; road.style.opacity = "1";     // crossfade: snow -> autumn (800ms)
+      setTimeout(() => { conf.classList.remove("on", "shown", "leaving"); }, 2600);
+      setTimeout(() => {                                                // the road gently zooms out and settles to the bottom
+        road.style.transition = "height 1.6s cubic-bezier(.45,0,.2,1)"; road.style.height = "560px";
+        veil.style.transition = "opacity 1.3s ease .15s"; veil.style.opacity = "1";
+        later(() => done.classList.add("shown"), 250);                  // "that's better." then continue fade in
+      }, 1000);
+      setTimeout(() => { done._sig = false; sigBusy = false; }, 2700);
+    }, 330);
+  }
+
   function openAlert() { app.querySelector(".rp-alert-dim").classList.add("on"); app.querySelector(".rp-alert").classList.add("on"); }
   function closeAlert() { app.querySelector(".rp-alert-dim").classList.remove("on"); app.querySelector(".rp-alert").classList.remove("on"); }
 
   function wire() {
     rp.querySelector(".rp-close").addEventListener("click", close);
+    const unpress = () => app.querySelectorAll(".press").forEach(e => e.classList.remove("press"));
+    app.addEventListener("pointerdown", e => { const t = e.target.closest(".rp-tap, .rp-send"); if (t) t.classList.add("press"); });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(ev => app.addEventListener(ev, unpress));
     rp.querySelector(".rp-backdrop").addEventListener("click", close);
     rp.querySelector(".rp-back").addEventListener("click", back);
     rp.querySelector(".rp-restart").addEventListener("click", restart);
@@ -356,7 +387,7 @@
     }));
     s7.querySelectorAll(".rp-go-confirm").forEach(b => b.addEventListener("click", () => go(7)));
     // 08 confirm
-    app.querySelector(".rp-clean").addEventListener("click", () => go(8));
+    app.querySelector(".rp-clean").addEventListener("click", snowToAutumn);
     app.querySelector(".rp-notnow2").addEventListener("click", () => go(6));
     // 09 done
     app.querySelector(".rp-go-home").addEventListener("click", () => { st.cleaned = true; hist = []; go(3, false); hint("your library, a little lighter. tap restart to go again, or close to keep exploring the page."); });

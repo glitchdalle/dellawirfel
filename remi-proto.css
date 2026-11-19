@@ -58,12 +58,21 @@
 @keyframes rpKbC { from { transform: scale(1.14) translate(2%, -2%); } to { transform: scale(1.06) translate(-1%, 1%); } }
 @keyframes rpDrift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.05) translate(-1%, -.6%); } }
 @keyframes rpOut { from { transform: scale(1.04); } to { transform: scale(1); } }
+/* apple music-style: each photograph drifts along its own slow closed loop, so it never visibly reverses */
+@keyframes rpAmA { 0%, 100% { transform: scale(1.08) translate(0, 0); } 25% { transform: scale(1.11) translate(-1.8%, -1%); }
+  50% { transform: scale(1.13) translate(-.6%, -2.2%); } 75% { transform: scale(1.10) translate(1.4%, -.8%); } }
+@keyframes rpAmB { 0%, 100% { transform: scale(1.10) translate(-1%, .5%); } 25% { transform: scale(1.08) translate(1.2%, -.4%); }
+  50% { transform: scale(1.12) translate(1.6%, -1.8%); } 75% { transform: scale(1.13) translate(-1.4%, -1.2%); } }
+@keyframes rpAmC { 0%, 100% { transform: scale(1.12) translate(1%, -1%); } 25% { transform: scale(1.14) translate(-.8%, -1.9%); }
+  50% { transform: scale(1.09) translate(-1.7%, .3%); } 75% { transform: scale(1.10) translate(.9%, .8%); } }
+@keyframes rpAmSoft { 0%, 100% { transform: scale(1.03) translate(0, 0); } 33% { transform: scale(1.05) translate(-.8%, -.5%); } 66% { transform: scale(1.04) translate(.6%, -.7%); } }
 .rp-amb-zoom { animation: rpZoom 9s ease-out forwards; }
-.rp-amb-drift { animation: rpDrift 16s ease-in-out infinite alternate; }
-.rp-kb-a { animation: rpKbA 14s ease-in-out infinite alternate; }
-.rp-kb-b { animation: rpKbB 17s ease-in-out infinite alternate; }
-.rp-kb-c { animation: rpKbC 15s ease-in-out infinite alternate; }
-@media (prefers-reduced-motion: reduce) { .rp-amb-zoom, .rp-amb-drift, .rp-kb-a, .rp-kb-b, .rp-kb-c { animation: none; } }
+.rp-amb-drift { animation: rpAmSoft 24s ease-in-out infinite; }
+.rp-kb-a { animation: rpAmA 16s ease-in-out infinite; }
+.rp-kb-b { animation: rpAmB 18s ease-in-out infinite; animation-delay: -6s; }
+.rp-kb-c { animation: rpAmC 14s ease-in-out infinite; animation-delay: -3s; }
+.rp-am-confirm { animation: rpAmB 16s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .rp-amb-zoom, .rp-amb-drift, .rp-kb-a, .rp-kb-b, .rp-kb-c, .rp-am-confirm, .rp-s9.shown .rp-road .rp-bg { animation: none !important; } }
 
 /* 01 name */
 .rp-name-in { left: 97px; top: 808px; width: 428px; height: 52px; border-radius: 12px; background: rgba(255,255,255,.17); display: flex; align-items: center; }
@@ -73,7 +82,7 @@
 .rp-send { flex: none; width: 40px; height: 40px; margin-right: 6px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
   background: rgba(255,255,255,.22); color: rgba(255,255,255,.7); font-size: 22px; cursor: pointer; transition: background .3s, color .3s, transform .15s; }
 .rp-send.ready { background: #f3e9de; color: #2a1f1a; }
-.rp-send:active { transform: scale(.92); }
+.rp-send:active, .rp-send.press { transform: scale(.92); }
 .rp-greet { left: 0; right: 0; top: 905px; text-align: center; color: #fff; font-weight: 400; }
 .rp-greet u { text-decoration: none; }
 
@@ -149,10 +158,13 @@
 
 /* 09 success */
 .rp-road { position: absolute; left: 0; right: 0; bottom: 0; height: 560px; overflow: hidden; opacity: 0; transition: opacity 1.3s ease;
-  -webkit-mask-image: linear-gradient(transparent, #000 75%); mask-image: linear-gradient(transparent, #000 75%); }
+  -webkit-mask-image: linear-gradient(transparent 0, #000 240px); mask-image: linear-gradient(transparent 0, #000 240px); }
 .rp-road .rp-bg { inset: -20px; }
-.rp-s9.shown .rp-road { opacity: .9; }
-.rp-s9.shown .rp-road .rp-bg { animation: rpOut 1.5s ease-out forwards, rpZoom 18s 1.5s ease-in-out infinite alternate; }
+.rp-veil { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(#f3e9de 0, #f3e9de 739px, rgba(243,233,222,.6) 900px, rgba(243,233,222,0) 1159px); }
+.rp-s9.shown .rp-road { opacity: 1; }
+.rp-s9.shown .rp-road .rp-bg { animation: rpOut 1.5s ease-out forwards, rpAmC 18s 1.5s ease-in-out infinite; }
+.rp-s8.leaving .rp-fade { opacity: 0 !important; transform: translateY(-6px) !important; transition: opacity .35s ease, transform .35s ease !important; transition-delay: 0s !important; }
 .rp-better { left: 0; right: 0; top: 450px; text-align: center; font-size: 31px; font-weight: 300; color: #1a1a1a; }
 .rp-s9 .rp-better { transition-delay: 1.1s !important; }
 .rp-s9 .rp-cont { top: 690px; transition-delay: 1.75s !important; }
