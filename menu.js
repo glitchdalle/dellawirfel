@@ -101,8 +101,8 @@
         .dd-tour .long { display: none; }
       }`;
     // application pages: each one starts its own tour, labelled with the company
-    const APPS = { doordash: "doordash", courted: "courted", nominal: "nominal", ralphlauren: "ralph lauren", palantir: "palantir", databricks: "databricks" };
-    const appMatch = location.pathname.match(/\/(doordash|courted|nominal|ralphlauren|palantir|databricks)(\/|\/index\.html)?$/);
+    const APPS = { doordash: "doordash", courted: "courted", nominal: "nominal", ralphlauren: "ralph lauren", palantir: "palantir", databricks: "databricks", roblox: "roblox", c3ai: "c3 AI", anduril: "anduril" };
+    const appMatch = location.pathname.match(/\/(doordash|courted|nominal|ralphlauren|palantir|databricks|roblox|c3ai|anduril)(\/|\/index\.html)?$/);
     if (appMatch) {
       ss.setItem("dd-back", location.href);
       ss.setItem("dd-label", APPS[appMatch[1]]);
